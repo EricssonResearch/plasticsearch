@@ -1,24 +1,52 @@
 :- module(plasticsearch, [
+    '.'/3,
     plasticsearch/2,
-    plasticsearch/3
+    plasticsearch/3,
+    destroy/1
 ]).
 
 :- use_module(library(uuid)).
 :- use_module(library(uri)).
+:- use_module(library(registry)).
+:- use_module(library(cluster)).
+:- use_module(library(indices)).
 
-:- initialization(mutex_create(_, [alias(plasticsearch)]), restore).
+:- debug(plasticsearch).
+
+'.'(Ps, cluster, [cluster, Ps]) :- !.
+'.'(Ps, indices, [indices, Ps]) :- !.
+
+'.'([Module, Ps], Predicate, true) :- !,
+    Predicate =.. [Name|Args],
+    safe_recorded(Ps, Plasticsearch),
+    PredicateWithPs =.. [Name|[Plasticsearch|Args]],
+    ModuledPredicate =.. [:, Module, PredicateWithPs],
+    call(ModuledPredicate).
+
+'.'(Ps, Predicate, true) :-
+    Predicate =.. [Name|Args],
+    safe_recorded(Ps, Plasticsearch),
+    PredicateWithPs =.. [Name|[Plasticsearch|Args]],
+    call(PredicateWithPs).
 
 plasticsearch(Ps, Options) :-
     uuid(Ps),
     uri_components('http://localhost:9200', NormalizedHost),
     fill_options(Options, FullOptions),
-    safe_recorda(Ps, plasticsearch([NormalizedHost], FullOptions)).
+    safe_recorda(Ps, plasticsearch(id(Ps), hosts([NormalizedHost]), options(FullOptions), vars(_{}))).
 
 plasticsearch(Ps, Hosts, Options) :-
     uuid(Ps),
-    normalize_hosts(Hosts, NormalizedHosts),
+    (   is_list(Hosts)
+    ->  Hosts1 = Hosts
+    ;   Hosts1 = [Hosts]
+    ),
+    normalize_hosts(Hosts1, NormalizedHosts),
     fill_options(Options, FullOptions),
-    safe_recorda(Ps, plasticsearch(NormalizedHosts, FullOptions)).
+    safe_recorda(Ps, plasticsearch(id(Ps), hosts(NormalizedHosts), options(FullOptions), vars(_{}))).
+
+destroy(Ps) :-
+    safe_erase(Ps).
 
 normalize_hosts([], []) :- !.
 
@@ -27,7 +55,7 @@ normalize_hosts([H|T], NormalizedHosts) :-
     normalize_hosts(T, NormalizedHosts0),
     (   sub_atom_icasechk(H, _, '://')
     ->  Host = H
-    ;   atomic_list_concat(['http://', H, ':9200'], Host)
+    ;   atomic_list_concat(['http://', H, :, 9200], Host)
     ),
     uri_components(Host, NormalizedHost),
     NormalizedHosts = [NormalizedHost|NormalizedHosts0].
@@ -41,7 +69,8 @@ fill_options(Options, FullOptions) :-
     fill_options0([
             dead_timeout(60),
             retry_on_timeout(false),
-            timeout_cutoff(5)
+            timeout_cutoff(5),
+            random_selector(false)
         ], Options, FullOptions).
 
 fill_options0([], OldOptions, OldOptions) :- !.
@@ -53,15 +82,3 @@ fill_options0([H|T], OldOptions, NewOptions) :-
     ->  NewOptions = NewOptions0
     ;   NewOptions = [H|NewOptions0]
     ).
-
-safe_recorda(Key, Term) :-
-    with_mutex(plasticsearch, recorda(Key, Term)).
-
-safe_erase(Key) :-
-    with_mutex(plasticsearch,
-        recorded(Key, _, Ref),
-        erase(Ref)
-    ).
-
-safe_recorded(Key, Term) :-
-    with_mutex(plasticsearch, recorded(Key, Term)).

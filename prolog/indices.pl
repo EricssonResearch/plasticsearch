@@ -1,0 +1,32 @@
+:- module(indices, [
+    create/4,
+    create/5,
+    delete/3,
+    delete/4,
+    get/4,
+    get/5
+]).
+
+:- use_module(library(transport)).
+:- use_module(library(util)).
+
+create(Ps, Index, Body, Reply) :-
+    create(Ps, Index, _{}, Body, Reply).
+
+create(Ps, Index, Params, Body, Reply) :-
+    make_context(Index, Context),
+    perform_request(Ps, post, Context, Params, Body, _, Reply).
+
+delete(Ps, Index, Reply) :-
+    delete(Ps, Index, _{}, Reply).
+
+delete(Ps, Index, Params, Reply) :-
+    make_context(Index, Context),
+    perform_request(Ps, delete, Context, Params, _, Reply).
+
+get(Ps, Index, Feature, Reply) :-
+    get(Ps, Index, Feature, _{}, Reply).
+
+get(Ps, Index, Feature, Params, Reply) :-
+    make_context([Index, Feature], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
