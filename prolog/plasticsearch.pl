@@ -10,7 +10,7 @@
 
 plasticsearch(Ps, Options) :-
     uuid(Ps),
-    uri_components('http://localhost', NormalizedHost),
+    uri_components('http://localhost:9200', NormalizedHost),
     fill_options(Options, FullOptions),
     safe_recorda(Ps, plasticsearch([NormalizedHost], FullOptions)).
 
@@ -27,7 +27,7 @@ normalize_hosts([H|T], NormalizedHosts) :-
     normalize_hosts(T, NormalizedHosts0),
     (   sub_atom_icasechk(H, _, '://')
     ->  Host = H
-    ;   atom_concat('http://', H, Host)
+    ;   atomic_list_concat(['http://', H, ':9200'], Host)
     ),
     uri_components(Host, NormalizedHost),
     NormalizedHosts = [NormalizedHost|NormalizedHosts0].
