@@ -18,22 +18,20 @@
 
 '.'([Module, Ps], Predicate, true) :- !,
     Predicate =.. [Name|Args],
-    safe_recorded(Ps, Plasticsearch),
-    PredicateWithPs =.. [Name|[Plasticsearch|Args]],
+    PredicateWithPs =.. [Name|[Ps|Args]],
     ModuledPredicate =.. [:, Module, PredicateWithPs],
     call(ModuledPredicate).
 
 '.'(Ps, Predicate, true) :-
     Predicate =.. [Name|Args],
-    safe_recorded(Ps, Plasticsearch),
-    PredicateWithPs =.. [Name|[Plasticsearch|Args]],
+    PredicateWithPs =.. [Name|[Ps|Args]],
     call(PredicateWithPs).
 
 plasticsearch(Ps, Options) :-
     uuid(Ps),
     uri_components('http://localhost:9200', NormalizedHost),
     fill_options(Options, FullOptions),
-    safe_recorda(Ps, plasticsearch(id(Ps), hosts([NormalizedHost]), options(FullOptions), vars(_{}))).
+    new(Ps, _{id:Ps, hosts:[NormalizedHost], options:FullOptions}).
 
 plasticsearch(Ps, Hosts, Options) :-
     uuid(Ps),
@@ -43,10 +41,7 @@ plasticsearch(Ps, Hosts, Options) :-
     ),
     normalize_hosts(Hosts1, NormalizedHosts),
     fill_options(Options, FullOptions),
-    safe_recorda(Ps, plasticsearch(id(Ps), hosts(NormalizedHosts), options(FullOptions), vars(_{}))).
-
-destroy(Ps) :-
-    safe_erase(Ps).
+    new(Ps, _{id:Ps, hosts:NormalizedHosts, options:FullOptions}).
 
 normalize_hosts([], []) :- !.
 
@@ -69,8 +64,10 @@ fill_options(Options, FullOptions) :-
     fill_options0([
             dead_timeout(60),
             retry_on_timeout(false),
+            max_retries(3),
             timeout_cutoff(5),
-            random_selector(false)
+            random_selector(false),
+            retry_on_status([503, 504])
         ], Options, FullOptions).
 
 fill_options0([], OldOptions, OldOptions) :- !.
@@ -82,3 +79,6 @@ fill_options0([H|T], OldOptions, NewOptions) :-
     ->  NewOptions = NewOptions0
     ;   NewOptions = [H|NewOptions0]
     ).
+
+destroy(Ps) :-
+    delete(Ps).

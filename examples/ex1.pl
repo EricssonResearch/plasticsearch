@@ -5,7 +5,7 @@
 :- debug(ex1).
 
 index_op :-
-    plasticsearch(Ps, 'honnix-ws', []),
+    plasticsearch(Ps, 'http://honnix-ws:80', [retry_on_status([502, 503, 504])]),
     Ps.indices.create(es_test,
         _{settings: _{index: _{'mapping.allow_type_wrapper': true}}},
         Reply1),
