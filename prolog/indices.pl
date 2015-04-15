@@ -7,8 +7,8 @@
     get/5
 ]).
 
-:- use_module(library(transport)).
-:- use_module(library(util)).
+:- use_module(transport).
+:- use_module(util).
 
 create(Ps, Index, Body, Reply) :-
     create(Ps, Index, _{}, Body, Reply).

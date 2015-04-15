@@ -8,8 +8,8 @@
 :- use_module(library(http/http_json)).
 :- use_module(library(http/json)).
 
-:- use_module(library(connection_pool)).
-:- use_module(library(registry)).
+:- use_module(connection_pool).
+:- use_module(registry).
 
 :- debug(transport).
 

@@ -7,9 +7,10 @@
 
 :- use_module(library(uuid)).
 :- use_module(library(uri)).
-:- use_module(library(registry)).
-:- use_module(library(cluster)).
-:- use_module(library(indices)).
+
+:- use_module(registry).
+:- use_module(cluster).
+:- use_module(indices).
 
 :- debug(plasticsearch).
 
