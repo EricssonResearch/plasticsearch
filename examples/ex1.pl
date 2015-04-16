@@ -24,6 +24,8 @@ index_op :-
     debug(ex1, 'Analyze3 ~w', AnalyzeReply3),
     catch(Ps.indices.analyze('', _{analyzer:standard}, 'this is a test', AnalyzeReply4), _, true),
     debug(ex1, 'Analyze4 ~w', AnalyzeReply4),
+    catch(Ps.indices.refresh(es_test, RefreshReply), _, true),
+    debug(ex1, 'Refresh ~w', RefreshReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

@@ -4,7 +4,11 @@
     delete/3,
     delete/4,
     get/4,
-    get/5
+    get/5,
+    analyze/4,
+    analyze/5,
+    refresh/3,
+    refresh/4
 ]).
 
 :- use_module(transport).
@@ -40,3 +44,10 @@ analyze(Ps, Index, Params, Body, Reply) :-
     ->  perform_request(Ps, get, Context, Params, _, Reply)
     ;   perform_request(Ps, post, Context, Params, Body, _, Reply)
     ).
+
+refresh(Ps, Index, Reply) :-
+    refresh(Ps, Index, _{}, Reply).
+
+refresh(Ps, Index, Params, Reply) :-
+    make_context([Index, '_refresh'], Context),
+    perform_request(Ps, post, Context, Params, '', _, Reply).
