@@ -12,8 +12,6 @@
 :- use_module(cluster).
 :- use_module(indices).
 
-:- debug(plasticsearch).
-
 '.'(Ps, cluster, [cluster, Ps]) :- !.
 '.'(Ps, indices, [indices, Ps]) :- !.
 

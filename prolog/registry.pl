@@ -8,10 +8,13 @@
 new(Key, Dict) :-
     mutex_create(_, [alias(Key)]),
     build_var_dict(Dict, Vars),
-    recorda(Key, Dict.put(vars, Vars)).
+    Value = Dict.put(vars, Vars),
+    debug(registry, 'register a new plasticsearch ~w', [Value]),
+    recorda(Key, Value).
 
 delete(Key) :-
-    recorded(Key, _, Ref),
+    recorded(Key, Value, Ref),
+    debug(registry, 'deregister plasticsearch ~w', [Value]),
     erase(Ref),
     mutex_destroy(Key).
 
