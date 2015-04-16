@@ -28,6 +28,10 @@ index_op :-
     debug(ex1, 'Refresh ~w', RefreshReply),
     catch(Ps.indices.flush(es_test, FlushReply), _, true),
     debug(ex1, 'Flush ~w', FlushReply),
+    catch(Ps.indices.close_index(es_test, CloseReply), _, true),
+    debug(ex1, 'Close ~w', CloseReply),
+    catch(Ps.indices.open_index(es_test, OpenReply), _, true),
+    debug(ex1, 'Open ~w', OpenReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
