@@ -5,7 +5,7 @@
 :- debug(ex1).
 
 index_op :-
-    plasticsearch(Ps, ['http://honnix-ws:9200'],
+    plasticsearch(Ps, ['http://192.121.150.101:8200', 'http://192.121.150.101:9200'],
         [dead_timeout(1), retry_on_status([502, 503, 504])]),
     catch(Ps.indices.create(es_test,
         _{settings: _{index: _{'mapping.allow_type_wrapper': true}}},
@@ -32,6 +32,7 @@ index_op :-
     debug(ex1, 'Close ~w', CloseReply),
     catch(Ps.indices.open_index(es_test, OpenReply), _, true),
     debug(ex1, 'Open ~w', OpenReply),
+    Ps.indices.exists(es_test),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

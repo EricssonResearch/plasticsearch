@@ -1,7 +1,8 @@
 :- module(util, [
     make_context/2,     % +Parts, -Context
     random/2,           % +List, -Elem
-    non_empty_index/1   % +Index
+    non_empty_index/1,  % +Index
+    extract_param/5     % +Params, -NewParams, +Name, -Value, +DefaultValue
 ]).
 
 /** <module> Utilities
@@ -47,3 +48,15 @@ non_empty_index(Index) :-
     throw(error(plasticsearch_exception(na, 'Empty value passed for a required argument \'index\'.'))).
 
 non_empty_index(_).
+
+%% extract_param(+Params, -NewParams, +Name, -Value, +DefaultValue) is det.
+%
+% Extract parameter from dictionary and return = DefaultValue = is
+% the specified parameter does not exist.
+
+extract_param(Params, NewParams, Name, Value, DefaultValue) :-
+    (   del_dict(Name, Params, Value, NewParams)
+    ->  true
+    ;   Value = DefaultValue,
+        NewParams = Params
+    ).

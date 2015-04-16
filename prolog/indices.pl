@@ -13,8 +13,10 @@
     flush/4,        % +Ps, +Index, +Params, -Reply
     open_index/3,   % +Ps, +Index, -Reply
     open_index/4,   % +Ps, +Index, +Params, -Reply
-    close_index/3,   % +Ps, +Index, -Reply
-    close_index/4    % +Ps, +Index, +Params, -Reply
+    close_index/3,  % +Ps, +Index, -Reply
+    close_index/4,  % +Ps, +Index, +Params, -Reply
+    exists/2,       % +Ps, +Index
+    exists/3        % +Ps, +Index, +Params
 ]).
 
 /** <module> Indices APIs
@@ -142,3 +144,22 @@ close_index(Ps, Index, Params, Reply) :-
     non_empty_index(Index),
     make_context([Index, '_close'], Context),
     perform_request(Ps, post, Context, Params, '', _, Reply).
+
+%% exists(+Ps, +Index) is semidet.
+%% exists(+Ps, +Index, +Params) is semidet.
+%
+% Return a boolean indicating whether given index exists.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-exists.html).
+
+exists(Ps, Index) :-
+    exists(Ps, Index, _{}).
+
+exists(Ps, Index, Params) :-
+    non_empty_index(Index),
+    make_context(Index, Context),
+    (   catch(perform_request(Ps, head, Context, Params, _, _), E, true)
+    ->  (   var(E)
+        ->  true
+        ;   E = plasticsearch_exception(404, _)
+        )
+    ).
