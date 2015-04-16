@@ -18,7 +18,9 @@
     exists/2,       % +Ps, +Index
     exists/3,       % +Ps, +Index, +Params
     put_mapping/5,  % +Ps, +Index, +DocType, +Body, -Reply
-    put_mapping/6   % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    put_mapping/6,  % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    get_mapping/4,  % +Ps, +Index, +DocType, -Reply
+    get_mapping/5   % +Ps, +Index, +DocType, +Params, -Reply
 ]).
 
 /** <module> Indices APIs
@@ -179,3 +181,16 @@ put_mapping(Ps, Index, DocType, Params, Body, Reply) :-
     forall(member(Value-Name, [DocType-doc_type, Body-body]), non_empty(Value, Name)),
     make_context([Index, '_mapping', DocType], Context),
     perform_request(Ps, put, Context, Params, Body, _, Reply).
+
+%% get_mapping(+Ps, +Index, +DocType, -Reply) is semidet.
+%% get_mapping(+Ps, +Index, +DocType, +Params, -Reply) is semidet.
+%
+% Retrieve mapping definition of index or index/type.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-mapping.html).
+
+get_mapping(Ps, Index, DocType, Reply) :-
+    get_mapping(Ps, Index, DocType, _{}, Reply).
+
+get_mapping(Ps, Index, DocType, Params, Reply) :-
+    make_context([Index, '_mapping', DocType], Context),
+    perform_request(Ps, get, Context, Params,  _, Reply).
