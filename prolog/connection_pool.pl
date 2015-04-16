@@ -1,14 +1,26 @@
 :- module(connection_pool, [
-    get_connection/2,
-    mark_alive/2,
-    mark_dead/2
+    get_connection/2,       % +Ps, -Connection
+    mark_alive/2,           % +Ps, +Connection
+    mark_dead/2             % +Ps, +Connection
 ]).
+
+/** <module> Connection pool.
+Connection pool manages lifecycle of connections.
+
+@auther Hongxin Liang
+@license TBD
+*/
 
 :- use_module(library(random)).
 :- use_module(library(lists)).
 
 :- use_module(registry).
 :- use_module(util).
+
+%% get_connection(+Ps, -Connections) is det.
+%
+% Get one connection for pool. If there is no alive
+% connection, a randomly selected one will be returned.
 
 get_connection(Ps, Connection) :-
     with_mutex(Ps, get_connection0(Ps, Connection)).
@@ -34,6 +46,10 @@ next_rr(Ps, RR) :-
     RR is Value.vars.rr + 1,
     recorda(Ps, Value.put(vars, Value.vars.put(rr, RR))).
 
+%% mark_alive(+Ps, +Connection) is det.
+%
+% Mark a connection as alive.
+
 mark_alive(Ps, Connection) :-
     with_mutex(Ps, mark_alive0(Ps, Connection)).
 
@@ -46,6 +62,10 @@ mark_alive0(Ps, Connection) :-
     ;   DeadCount1 = DeadCount
     ),
     recorda(Ps, Value.put([vars=Value.vars.put(dead_count, DeadCount1)])).
+
+%% mark_dead(+Ps, +Connection) is det.
+%
+% Mark a connection as dead.
 
 mark_dead(Ps, Connection) :-
     with_mutex(Ps, mark_dead0(Ps, Connection)).

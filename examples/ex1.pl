@@ -26,6 +26,8 @@ index_op :-
     debug(ex1, 'Analyze4 ~w', AnalyzeReply4),
     catch(Ps.indices.refresh(es_test, RefreshReply), _, true),
     debug(ex1, 'Refresh ~w', RefreshReply),
+    catch(Ps.indices.flush(es_test, FlushReply), _, true),
+    debug(ex1, 'Flush ~w', FlushReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

@@ -1,9 +1,19 @@
 :- module(util, [
-    make_context/2,
-    random/2
+    make_context/2,     % +Parts, -Context
+    random/2            % +List, -Elem
 ]).
 
+/** <module> Utilities
+
+@auther Hongxin Liang
+@license TBD
+*/
+
 :- use_module(library(lists)).
+
+%% make_context(+Parts, -Context) is det.
+%
+% Create an HTTP context.
 
 make_context(Parts, Context) :-
     (   is_list(Parts)
@@ -16,6 +26,10 @@ make_context(Parts, Context) :-
     -> atom_concat(/, Context0, Context)
     ;  Context = Context0
     ).
+
+%% random(+List, -Elem) is det.
+%
+% Randomly select one element from a list.
 
 random(List, Elem) :-
     length(List, Length),

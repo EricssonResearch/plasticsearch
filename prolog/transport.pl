@@ -1,7 +1,13 @@
 :- module(transport, [
-    perform_request/6,
-    perform_request/7
+    perform_request/6,      % +Ps, +HTTPMethod, +Context, +Params, -Status, -Reply
+    perform_request/7       % +Ps, +HTTPMethod, +Context, +Params, +Body, -Status, -Reply
 ]).
+
+/** <module> Transport related logic.
+
+@auther Hongxin Liang
+@license TBD
+*/
 
 :- use_module(library(uri)).
 :- use_module(library(http/http_client)).
@@ -10,6 +16,11 @@
 
 :- use_module(connection_pool).
 :- use_module(registry).
+
+%% perform_request(+Ps, +HTTPMethod, +Context, +Params, -Status, -Reply) is semidet.
+%% perform_request(+Ps, +HTTPMethod, +Context, +Params, +Body, -Status, -Reply) is semidet.
+%
+% Perform actual HTTP request. For GET and DELETE methods, body is not supported.
 
 perform_request(Ps, get, Context, Params, Status, Reply) :- !,
     http_operation_with_retry(Ps, Context, Params, http_get, Status, Reply).
@@ -90,8 +101,8 @@ get_timeout_option(Params, Timeout, Params1) :-
         Params1 = Params
     ).
 
-compose_url(uri_components(Scheme, Authority, Path, Search, _), Context, Params, URL) :-
+compose_url(uri_components(Scheme, Authority, Path, Search, Fragment), Context, Params, URL) :-
     atom_concat(Path, Context, NewPath),
     dict_pairs(Params, _, Pairs),
     uri_query_components(Search, Pairs),
-    uri_components(URL, uri_components(Scheme, Authority, NewPath, Search, _)).
+    uri_components(URL, uri_components(Scheme, Authority, NewPath, Search, Fragment)).

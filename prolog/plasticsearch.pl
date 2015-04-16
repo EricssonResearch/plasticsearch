@@ -1,9 +1,19 @@
 :- module(plasticsearch, [
-    '.'/3,
-    plasticsearch/2,
-    plasticsearch/3,
-    destroy/1
+    '.'/3,              % +Ps, +Term, -Result
+    plasticsearch/1,    % -Ps
+    plasticsearch/2,    % -Ps, +Options
+    plasticsearch/3,    % -Ps, +Hosts, +Options
+    destroy/1           % +Ps
 ]).
+
+/** <module> Elasticsearch Prolog APIs.
+This is basically a Prolog version of [Elasticsearch Python APIs](https://github.com/elastic/elasticsearch-py).
+
+@auther Hongxin Liang
+@license TBD
+@see https://github.com/elastic/elasticsearch-py
+@tbd Sniffing is not supported.
+*/
 
 :- use_module(library(uuid)).
 :- use_module(library(uri)).
@@ -12,19 +22,48 @@
 :- use_module(cluster).
 :- use_module(indices).
 
+%% '.'(+Ps, +Term, -Result) is semidet.
+%
+% Syntactic sugar for invoking APIs.
+
 '.'(Ps, cluster, [cluster, Ps]) :- !.
 '.'(Ps, indices, [indices, Ps]) :- !.
 
-'.'([Module, Ps], Predicate, true) :- !,
-    Predicate =.. [Name|Args],
-    PredicateWithPs =.. [Name|[Ps|Args]],
-    ModuledPredicate =.. [:, Module, PredicateWithPs],
-    call(ModuledPredicate).
+'.'([Module, Ps], Term, true) :- !,
+    Term =.. [Name|Args],
+    TermWithPs =.. [Name|[Ps|Args]],
+    ModuledTerm =.. [:, Module, TermWithPs],
+    call(ModuledTerm).
 
-'.'(Ps, Predicate, true) :-
-    Predicate =.. [Name|Args],
-    PredicateWithPs =.. [Name|[Ps|Args]],
-    call(PredicateWithPs).
+'.'(Ps, Term, true) :-
+    Term =.. [Name|Args],
+    TermWithPs =.. [Name|[Ps|Args]],
+    call(TermWithPs).
+
+%% plasticsearch(-Ps) is det.
+%% plasticsearch(-Ps, +Options) is det.
+%% plasticsearch(-Ps, +Hosts, +Options) is det.
+%
+% Create a new Plasticsearch instance.
+%
+% Default options are:
+% ==
+% dead_timeout(60)
+% retry_on_timeout(false)
+% max_retries(3)
+% timeout_cutoff(5)
+% random_selector(false)
+% retry_on_status([503, 504])
+% ==
+%
+% If no =Hosts= are given, http://localhost:9200 will be
+% used by default. If only hostname is provided,
+% port 9200 will be used and http will be assumed. Otherwise
+% = uri_components(Scheme, Authority, Path, Search, Fragment) =
+% can be used for fine-grained configuration.
+
+plasticsearch(Ps) :-
+    plasticsearch(Ps, []).
 
 plasticsearch(Ps, Options) :-
     uuid(Ps),
@@ -79,5 +118,9 @@ fill_options0([H|T], OldOptions, NewOptions) :-
     ;   NewOptions = [H|NewOptions0]
     ).
 
+%% destroy(+Ps) is det.
+%
+% Destory a Plasticsearch instance.
+
 destroy(Ps) :-
-    delete(Ps).
+    ignore(delete(Ps)).
