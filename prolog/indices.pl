@@ -16,7 +16,9 @@
     close_index/3,  % +Ps, +Index, -Reply
     close_index/4,  % +Ps, +Index, +Params, -Reply
     exists/2,       % +Ps, +Index
-    exists/3        % +Ps, +Index, +Params
+    exists/3,       % +Ps, +Index, +Params
+    put_mapping/5,  % +Ps, +Index, +DocType, +Body, -Reply
+    put_mapping/6   % +Ps, +Index, +DocType, +Params, +Body, -Reply
 ]).
 
 /** <module> Indices APIs
@@ -41,7 +43,7 @@ create(Ps, Index, Body, Reply) :-
     create(Ps, Index, _{}, Body, Reply).
 
 create(Ps, Index, Params, Body, Reply) :-
-    non_empty_index(Index),
+    non_empty(Index, index),
     make_context(Index, Context),
     perform_request(Ps, post, Context, Params, Body, _, Reply).
 
@@ -55,7 +57,7 @@ delete(Ps, Index, Reply) :-
     delete(Ps, Index, _{}, Reply).
 
 delete(Ps, Index, Params, Reply) :-
-    non_empty_index(Index),
+    non_empty(Index, index),
     make_context(Index, Context),
     perform_request(Ps, delete, Context, Params, _, Reply).
 
@@ -69,7 +71,7 @@ get(Ps, Index, Feature, Reply) :-
     get(Ps, Index, Feature, _{}, Reply).
 
 get(Ps, Index, Feature, Params, Reply) :-
-    non_empty_index(Index),
+    non_empty(Index, index),
     make_context([Index, Feature], Context),
     perform_request(Ps, get, Context, Params, _, Reply).
 
@@ -126,7 +128,7 @@ open_index(Ps, Index, Reply) :-
     open_index(Ps, Index, _{}, Reply).
 
 open_index(Ps, Index, Params, Reply) :-
-    non_empty_index(Index),
+    non_empty(Index, index),
     make_context([Index, '_open'], Context),
     perform_request(Ps, post, Context, Params, '', _, Reply).
 
@@ -141,7 +143,7 @@ close_index(Ps, Index, Reply) :-
     close_index(Ps, Index, _{}, Reply).
 
 close_index(Ps, Index, Params, Reply) :-
-    non_empty_index(Index),
+    non_empty(Index, index),
     make_context([Index, '_close'], Context),
     perform_request(Ps, post, Context, Params, '', _, Reply).
 
@@ -155,7 +157,7 @@ exists(Ps, Index) :-
     exists(Ps, Index, _{}).
 
 exists(Ps, Index, Params) :-
-    non_empty_index(Index),
+    non_empty(Index, index),
     make_context(Index, Context),
     (   catch(perform_request(Ps, head, Context, Params, _, _), E, true)
     ->  (   var(E)
@@ -163,3 +165,17 @@ exists(Ps, Index, Params) :-
         ;   E = plasticsearch_exception(404, _)
         )
     ).
+
+%% put_mapping(+Ps, +Index, +DocType, +Body, -Reply) is semidet.
+%% put_mapping(+Ps, +Index, +DocType, +Params, +Body, -Reply) is semidet.
+%
+% Register specific mapping definition for a specific type.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html).
+
+put_mapping(Ps, Index, DocType, Body, Reply) :-
+    put_mapping(Ps, Index, DocType, _{}, Body, Reply).
+
+put_mapping(Ps, Index, DocType, Params, Body, Reply) :-
+    forall(member(Value-Name, [DocType-doc_type, Body-body]), non_empty(Value, Name)),
+    make_context([Index, '_mapping', DocType], Context),
+    perform_request(Ps, put, Context, Params, Body, _, Reply).

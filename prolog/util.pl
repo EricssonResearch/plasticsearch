@@ -1,7 +1,7 @@
 :- module(util, [
     make_context/2,     % +Parts, -Context
     random/2,           % +List, -Elem
-    non_empty_index/1,  % +Index
+    non_empty/2,        % +Input, +Name
     extract_param/5     % +Params, -NewParams, +Name, -Value, +DefaultValue
 ]).
 
@@ -38,16 +38,18 @@ random(List, Elem) :-
     random_between(0, Length, Index),
     nth0(Index, List, Elem).
 
-%% non_empty_index(+Index) is det.
+%% non_empty(+Input, +Name) is det.
 %
-% Throw an exception if = Index = is empty atom
+% Throw an exception if = Input = is empty atom
 % or empty list.
 
-non_empty_index(Index) :-
-    (Index = ''; Index = []), !,
-    throw(error(plasticsearch_exception(na, 'Empty value passed for a required argument \'index\'.'))).
+non_empty(Input, Name) :-
+    (Input = ''; Input = []), !,
+    atomic_list_concat(['Empty value passed for a required argument \'',
+        Name, '\'.'], Message),
+    throw(error(plasticsearch_exception(na, Message))).
 
-non_empty_index(_).
+non_empty(_, _).
 
 %% extract_param(+Params, -NewParams, +Name, -Value, +DefaultValue) is det.
 %

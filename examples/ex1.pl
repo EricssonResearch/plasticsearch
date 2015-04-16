@@ -7,6 +7,7 @@
 index_op :-
     plasticsearch(Ps, ['http://192.121.150.101:8200', 'http://192.121.150.101:9200'],
         [dead_timeout(1), retry_on_status([502, 503, 504])]),
+    debug(ex1, 'Plasticsearch ~w', [Ps]),
     catch(Ps.indices.create(es_test,
         _{settings: _{index: _{'mapping.allow_type_wrapper': true}}},
         CreateReply), _, true),
@@ -33,6 +34,10 @@ index_op :-
     catch(Ps.indices.open_index(es_test, OpenReply), _, true),
     debug(ex1, 'Open ~w', OpenReply),
     Ps.indices.exists(es_test),
+    catch(Ps.indices.put_mapping(es_test, tweet,
+        _{tweet:_{properties:_{message:_{type:string, store:true}}}},
+        PutMappingReply), _, true),
+    debug(ex1, 'PutMapping ~w', PutMappingReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
