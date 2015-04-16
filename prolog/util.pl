@@ -11,7 +11,11 @@ make_context(Parts, Context) :-
     ;   Parts1 = [Parts]
     ),
     atomic_list_concat(Parts1, /, Context0),
-    atom_concat(/, Context0, Context).
+    Parts1 = [H|_],
+    (   H \= ''
+    -> atom_concat(/, Context0, Context)
+    ;  Context = Context0
+    ).
 
 random(List, Elem) :-
     length(List, Length),

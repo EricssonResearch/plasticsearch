@@ -18,10 +18,20 @@ perform_request(Ps, delete, Context, Params, Status, Reply) :-
     http_operation_with_retry(Ps, Context, Params, http_delete, Status, Reply).
 
 perform_request(Ps, post, Context, Params, Body, Status, Reply) :- !,
-    http_operation_with_retry(Ps, Context, Params, http_post(json(Body)), Status, Reply).
+    wrap_body(Body, WrappedBody),
+    http_operation_with_retry(Ps, Context, Params, http_post(WrappedBody), Status, Reply).
 
 perform_request(Ps, put, Context, Params, Body, Status, Reply) :-
-    http_operation_with_retry(Ps, Context, Params, http_put(json(Body)), Status, Reply).
+    wrap_body(Body, WrappedBody),
+    http_operation_with_retry(Ps, Context, Params, http_put(WrappedBody), Status, Reply).
+
+wrap_body(Body, WrappedBody) :-
+    is_dict(Body), !,
+    WrappedBody = json(Body).
+
+wrap_body(Body, WrappedBody) :-
+    atom(Body), !,
+    WrappedBody = codes(Body).
 
 http_operation_with_retry(Ps, Context, Params, Operation, Status, Reply) :-
     options(Ps, Options),
@@ -40,7 +50,8 @@ http_operation_with_retry0(Ps, Context, Params, Operation, RetryOnStatus, RetryO
     ->  (   var(E)
         ->  (   Status0 >= 200, Status0 < 300
             ->  Success = true
-            ;   (   memberchk(Status0, RetryOnStatus)
+            ;   debug(transport, 'status code ~w, reply ~w', [Status0, Reply0]),
+                (   memberchk(Status0, RetryOnStatus)
                 ->  Retry = true
                 ;   Retry = false
                 ),

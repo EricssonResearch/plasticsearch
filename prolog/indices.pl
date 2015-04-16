@@ -30,3 +30,13 @@ get(Ps, Index, Feature, Reply) :-
 get(Ps, Index, Feature, Params, Reply) :-
     make_context([Index, Feature], Context),
     perform_request(Ps, get, Context, Params, _, Reply).
+
+analyze(Ps, Index, Body, Reply) :-
+    analyze(Ps, Index, _{}, Body, Reply).
+
+analyze(Ps, Index, Params, Body, Reply) :-
+    make_context([Index, '_analyze'], Context),
+    (   var(Body)
+    ->  perform_request(Ps, get, Context, Params, _, Reply)
+    ;   perform_request(Ps, post, Context, Params, Body, _, Reply)
+    ).
