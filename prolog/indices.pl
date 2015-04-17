@@ -24,7 +24,19 @@
     get_field_mapping/5,    % +Ps, +Index, +DocType, +Field, -Reply
     get_field_mapping/6,    % +Ps, +Index, +DocType, +Field, +Params, -Reply
     delete_mapping/4,       % +Ps, +Index, +DocType, -Reply
-    delete_mapping/5        % +Ps, +Index, +DocType, +Params, -Reply
+    delete_mapping/5,       % +Ps, +Index, +DocType, +Params, -Reply
+    put_alias/5,            % +Ps, +Index, +Alias, +Body, -Reply
+    put_alias/6,            % +Ps, +Index, +Alias, +Params, +Body, -Reply
+    exists_alias/3,         % +Ps, +Index, +Alias
+    exists_alias/4,         % +Ps, +Index, +Alias, +Params
+    get_alias/4,            % +Ps, +Index, +Alias, -Reply
+    get_alias/5,            % +Ps, +Index, +Alias, +Params, -Reply
+    get_aliases/4,          % +Ps, +Index, +Aliases, -Reply
+    get_aliases/5,          % +Ps, +Index, +Aliases, +Params, -Reply
+    update_aliases/3,       % +Ps, +Body, -Reply
+    update_aliases/4,       % +Ps, +Params, +Body, -Reply
+    delete_alias/4,          % +Ps, +Index, +Alias, -Reply
+    delete_alias/5           % +Ps, +Index, +Alias, +Params, -Reply
 ]).
 
 /** <module> Indices APIs
@@ -216,8 +228,8 @@ get_field_mapping(Ps, Index, DocType, Field, Params, Reply) :-
 %% delete_mapping(+Ps, +Index, +DocType, -Reply) is semidet.
 %% delete_mapping(+Ps, +Index, +DocType, +Params, -Reply) is semidet.
 %
-% Retrieve mapping definition of index or index/type.
-% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-mapping.html).
+% Delete a mapping (type) along with its data.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-delete-mapping.html).
 
 delete_mapping(Ps, Index, DocType, Reply) :-
     delete_mapping(Ps, Index, DocType, _{}, Reply).
@@ -225,4 +237,89 @@ delete_mapping(Ps, Index, DocType, Reply) :-
 delete_mapping(Ps, Index, DocType, Params, Reply) :-
     forall(member(Value-Name, [Index-index, DocType-doc_type]), non_empty(Value, Name)),
     make_context([Index, '_mapping', DocType], Context),
+    perform_request(Ps, delete, Context, Params,  _, Reply).
+
+%% put_alias(+Ps, +Index, +Alias, +Body, -Reply) is semidet.
+%% get_mapping(+Ps, +Index, +Alias, +Params, +Body, -Reply) is semidet.
+%
+% Create an alias for a specific index/indices.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html).
+
+put_alias(Ps, Index, Alias, Body, Reply) :-
+    put_alias(Ps, Index, Alias, _{}, Body, Reply).
+
+put_alias(Ps, Index, Alias, Params, Body, Reply) :-
+    forall(member(Value-Name, [Index-index, Alias-alias]), non_empty(Value, Name)),
+    make_context([Index, '_alias', Alias], Context),
+    perform_request(Ps, put, Context, Params, Body, _, Reply).
+
+%% exists_alias(+Ps, +Index, +Alias) is semidet.
+%% exists_alias(+Ps, +Index, +Alias, +Params) is semidet.
+%
+% Return a boolean indicating whether given alias exists.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html).
+
+exists_alias(Ps, Index, Alias) :-
+    exists_alias(Ps, Index, Alias, _{}).
+
+exists_alias(Ps, Index, Alias, Params) :-
+    make_context([Index, '_alias', Alias], Context),
+    (   catch(perform_request(Ps, head, Context, Params, _, _), E, true)
+    ->  (   var(E)
+        ->  true
+        ;   E = plasticsearch_exception(404, _)
+        )
+    ).
+
+%% get_alias(+Ps, +Index, +Alias, -Reply) is semidet.
+%% get_alias(+Ps, +Index, +Alias, +Params, -Reply) is semidet.
+%
+% Retrieve a specified alias.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html).
+
+get_alias(Ps, Index, Alias, Reply) :-
+    get_alias(Ps, Index, Alias, _{}, Reply).
+
+get_alias(Ps, Index, Alias, Params, Reply) :-
+    make_context([Index, '_alias', Alias], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
+
+%% get_aliases(+Ps, +Index, +Alias, -Reply) is semidet.
+%% get_aliases(+Ps, +Index, +Alias, +Params, -Reply) is semidet.
+%
+% Retrieve a specified aliases.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html).
+
+get_aliases(Ps, Index, Aliases, Reply) :-
+    get_aliases(Ps, Index, Aliases, _{}, Reply).
+
+get_aliases(Ps, Index, Aliases, Params, Reply) :-
+    make_context([Index, '_aliases', Aliases], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
+
+%% update_aliases(+Ps, +Body, -Reply) is semidet.
+%% update_aliases(+Ps, +Params, +Body, -Reply) is semidet.
+%
+% Update specified aliases.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html).
+
+update_aliases(Ps, Body, Reply) :-
+    update_aliases(Ps, _{}, Body, Reply).
+
+update_aliases(Ps, Params, Body, Reply) :-
+    non_empty(Body, body),
+    perform_request(Ps, post, '/_aliases', Params, Body, _, Reply).
+
+%% delete_alias(+Ps, +Index, +Alias, -Reply) is semidet.
+%% delete_alias(+Ps, +Index, +Alias, +Params, -Reply) is semidet.
+%
+% Delete specific alias.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html).
+
+delete_alias(Ps, Index, Alias, Reply) :-
+    delete_alias(Ps, Index, Alias, _{}, Reply).
+
+delete_alias(Ps, Index, Alias, Params, Reply) :-
+    forall(member(Value-Name, [Index-index, Alias-alias]), non_empty(Value, Name)),
+    make_context([Index, '_alias', Alias], Context),
     perform_request(Ps, delete, Context, Params,  _, Reply).
