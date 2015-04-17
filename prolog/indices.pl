@@ -1,26 +1,28 @@
 :- module(indices, [
-    analyze/4,      % +Ps, +Index, +Body, -Reply
-    analyze/5,      % +Ps, +Index, +Params, +Body, -Reply
-    refresh/3,      % +Ps, +Index, -Reply
-    refresh/4,      % +Ps, +Index, +Params, -Reply
-    flush/3,        % +Ps, +Index, -Reply
-    flush/4,        % +Ps, +Index, +Params, -Reply
-    create/4,       % +Ps, +Index, +Body, -Reply
-    create/5,       % +Ps, +Index, +Params, +Body, -Reply
-    get/4,          % +Ps, +Index, +Feature, -Reply
-    get/5,          % +Ps, +Index, +Feature, +Params, -Reply
-    open_index/3,   % +Ps, +Index, -Reply
-    open_index/4,   % +Ps, +Index, +Params, -Reply
-    close_index/3,  % +Ps, +Index, -Reply
-    close_index/4,  % +Ps, +Index, +Params, -Reply
-    delete/3,       % +Ps, +Index, -Reply
-    delete/4,       % +Ps, +Index, +Params, -Reply
-    exists/2,       % +Ps, +Index
-    exists/3,       % +Ps, +Index, +Params
-    put_mapping/5,  % +Ps, +Index, +DocType, +Body, -Reply
-    put_mapping/6,  % +Ps, +Index, +DocType, +Params, +Body, -Reply
-    get_mapping/4,  % +Ps, +Index, +DocType, -Reply
-    get_mapping/5   % +Ps, +Index, +DocType, +Params, -Reply
+    analyze/4,              % +Ps, +Index, +Body, -Reply
+    analyze/5,              % +Ps, +Index, +Params, +Body, -Reply
+    refresh/3,              % +Ps, +Index, -Reply
+    refresh/4,              % +Ps, +Index, +Params, -Reply
+    flush/3,                % +Ps, +Index, -Reply
+    flush/4,                % +Ps, +Index, +Params, -Reply
+    create/4,               % +Ps, +Index, +Body, -Reply
+    create/5,               % +Ps, +Index, +Params, +Body, -Reply
+    get/4,                  % +Ps, +Index, +Feature, -Reply
+    get/5,                  % +Ps, +Index, +Feature, +Params, -Reply
+    open_index/3,           % +Ps, +Index, -Reply
+    open_index/4,           % +Ps, +Index, +Params, -Reply
+    close_index/3,          % +Ps, +Index, -Reply
+    close_index/4,          % +Ps, +Index, +Params, -Reply
+    delete/3,               % +Ps, +Index, -Reply
+    delete/4,               % +Ps, +Index, +Params, -Reply
+    exists/2,               % +Ps, +Index
+    exists/3,               % +Ps, +Index, +Params
+    put_mapping/5,          % +Ps, +Index, +DocType, +Body, -Reply
+    put_mapping/6,          % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    get_mapping/4,          % +Ps, +Index, +DocType, -Reply
+    get_mapping/5,          % +Ps, +Index, +DocType, +Params, -Reply
+    get_field_mapping/5,    % +Ps, +Index, +DocType, +Field, -Reply
+    get_field_mapping/6     % +Ps, +Index, +DocType, +Field, +Params, -Reply
 ]).
 
 /** <module> Indices APIs
@@ -193,4 +195,18 @@ get_mapping(Ps, Index, DocType, Reply) :-
 
 get_mapping(Ps, Index, DocType, Params, Reply) :-
     make_context([Index, '_mapping', DocType], Context),
+    perform_request(Ps, get, Context, Params,  _, Reply).
+
+%% get_field_mapping(+Ps, +Index, +DocType, +Field, -Reply) is semidet.
+%% get_mapping(+Ps, +Index, +DocType, +Field, +Params, -Reply) is semidet.
+%
+% Retrieve mapping definition of a specific field.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-field-mapping.html).
+
+get_field_mapping(Ps, Index, DocType, Field, Reply) :-
+    get_field_mapping(Ps, Index, DocType, Field, _{}, Reply).
+
+get_field_mapping(Ps, Index, DocType, Field, Params, Reply) :-
+    non_empty(Field, field),
+    make_context([Index, '_mapping', DocType, field, Field], Context),
     perform_request(Ps, get, Context, Params,  _, Reply).
