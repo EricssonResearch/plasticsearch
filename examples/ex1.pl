@@ -48,6 +48,10 @@ index_op :-
     debug(ex1, 'GetMapping2 ~w', GetMappingReply2),
     catch(Ps.indices.get_field_mapping(es_test, tweet, message, GetFieldMappingReply), _, true),
     debug(ex1, 'GetFieldMappingReply ~w', GetFieldMappingReply),
+    catch(Ps.indices.delete_mapping(es_test, tweet, DeleteMappingReply1), _, true),
+    debug(ex1, 'DeleteMappingReply1 ~w', DeleteMappingReply1),
+    catch(Ps.indices.delete_mapping(es_test, retweet, DeleteMappingReply2), _, true),
+    debug(ex1, 'DeleteMappingReply2 ~w', DeleteMappingReply2),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

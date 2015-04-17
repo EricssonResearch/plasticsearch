@@ -22,7 +22,9 @@
     get_mapping/4,          % +Ps, +Index, +DocType, -Reply
     get_mapping/5,          % +Ps, +Index, +DocType, +Params, -Reply
     get_field_mapping/5,    % +Ps, +Index, +DocType, +Field, -Reply
-    get_field_mapping/6     % +Ps, +Index, +DocType, +Field, +Params, -Reply
+    get_field_mapping/6,    % +Ps, +Index, +DocType, +Field, +Params, -Reply
+    delete_mapping/4,       % +Ps, +Index, +DocType, -Reply
+    delete_mapping/5        % +Ps, +Index, +DocType, +Params, -Reply
 ]).
 
 /** <module> Indices APIs
@@ -210,3 +212,17 @@ get_field_mapping(Ps, Index, DocType, Field, Params, Reply) :-
     non_empty(Field, field),
     make_context([Index, '_mapping', DocType, field, Field], Context),
     perform_request(Ps, get, Context, Params,  _, Reply).
+
+%% delete_mapping(+Ps, +Index, +DocType, -Reply) is semidet.
+%% delete_mapping(+Ps, +Index, +DocType, +Params, -Reply) is semidet.
+%
+% Retrieve mapping definition of index or index/type.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-mapping.html).
+
+delete_mapping(Ps, Index, DocType, Reply) :-
+    delete_mapping(Ps, Index, DocType, _{}, Reply).
+
+delete_mapping(Ps, Index, DocType, Params, Reply) :-
+    forall(member(Value-Name, [Index-index, DocType-doc_type]), non_empty(Value, Name)),
+    make_context([Index, '_mapping', DocType], Context),
+    perform_request(Ps, delete, Context, Params,  _, Reply).
