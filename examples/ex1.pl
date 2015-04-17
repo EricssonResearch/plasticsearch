@@ -104,6 +104,42 @@ index_op :-
     debug(ex1, 'DeleteWarmerReply ~w', DeleteWarmerReply),
     catch(Ps.indices.get_warmer(es_test, '', '', GetWarmerReply2), _, true),
     debug(ex1, 'GetWarmerReply2 ~w', GetWarmerReply2),
+    catch(Ps.indices.status(es_test, StatusReply), _, true),
+    debug(ex1, 'StatusReply ~w', StatusReply),
+    catch(Ps.indices.stats(es_test, '', StatsReply), _, true),
+    debug(ex1, 'StatsReply ~w', StatsReply),
+    catch(Ps.indices.segments(es_test, SegmentsReply), _, true),
+    debug(ex1, 'SegmentsReply ~w', SegmentsReply),
+    catch(Ps.indices.optimize(es_test, OptimizeReply), _, true),
+    debug(ex1, 'OptimizeReply ~w', OptimizeReply),
+    catch(Ps.indices.validate_query(es_test, tweet, _{q:'user:foo'}, '', ValidateQueryReply1), _, true),
+    debug(ex1, 'ValidateQueryReply1 ~w', ValidateQueryReply1),
+    catch(Ps.indices.validate_query(es_test, tweet,
+        _{
+            query:_{
+                filtered:_{
+                    query:_{
+                        query_string:_{
+                            query:'*:*'
+                        }
+                    },
+                    filter:_{
+                        term:_{user:kimchy}
+                    }
+                }
+            }
+        }, ValidateQueryReply2), _, true),
+    debug(ex1, 'ValidateQueryReply2 ~w', ValidateQueryReply2),
+    catch(Ps.indices.clear_cache(es_test, ClearCacheReply), _, true),
+    debug(ex1, 'ClearCacheReply ~w', ClearCacheReply),
+    catch(Ps.indices.recovery(es_test, RecoveryReply), _, true),
+    debug(ex1, 'RecoveryReply ~w', RecoveryReply),
+    % catch(Ps.indices.snapshot_index(es_test, SnapshotReply), _, true),
+    % debug(ex1, 'SnapshotReply ~w', SnapshotReply),
+    catch(Ps.indices.upgrade(es_test, UpgradeReply), _, true),
+    debug(ex1, 'UpgradeReply ~w', UpgradeReply),
+    catch(Ps.indices.get_upgrade(es_test, GetUpgradeReply), _, true),
+    debug(ex1, 'GetUpgradeReply ~w', GetUpgradeReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

@@ -54,7 +54,27 @@
     get_warmer/5,           % +Ps, +Index, +DocType, +Name, -Reply
     get_warmer/6,           % +Ps, +Index, +DocType, +Name, +Params, -Reply
     delete_warmer/4,        % +Ps, +Index, +Name, -Reply
-    delete_warmer/5         % +Ps, +Index, +Name, +Params, -Reply
+    delete_warmer/5,        % +Ps, +Index, +Name, +Params, -Reply
+    status/3,               % +Ps, +Index, -Reply
+    status/4,               % +Ps, +Index, +Params, -Reply
+    stats/4,                % +Ps, +Index, +Metric, -Reply
+    stats/5,                % +Ps, +Index, +Metric, +Params, -Reply
+    segments/3,             % +Ps, +Index, -Reply
+    segments/4,             % +Ps, +Index, +Params, -Reply
+    optimize/3,             % +Ps, +Index, -Reply
+    optimize/4,             % +Ps, +Index, +Params, -Reply
+    validate_query/5,       % +Ps, +Index, +DocType, +Body, -Reply
+    validate_query/6,       % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    clear_cache/3,          % +Ps, +Index, -Reply
+    clear_cache/4,          % +Ps, +Index, +Params, -Reply
+    recovery/3,             % +Ps, +Index, -Reply
+    recovery/4,             % +Ps, +Index, +Params, -Reply
+    snapshot_index/3,       % +Ps, +Index, -Reply
+    snapshot_index/4,       % +Ps, +Index, +Params, -Reply
+    upgrade/3,              % +Ps, +Index, -Reply
+    upgrade/4,              % +Ps, +Index, +Params, -Reply
+    get_upgrade/3,          % +Ps, +Index, -Reply
+    get_upgrade/4           % +Ps, +Index, +Params, -Reply
 ]).
 
 /** <module> Indices APIs
@@ -475,3 +495,135 @@ delete_warmer(Ps, Index, Name, Params, Reply) :-
     forall(member(Value-Name, [Index-index, Name-name]), non_empty(Value, Name)),
     make_context([Index, '_warmer', Name], Context),
     perform_request(Ps, delete, Context, Params, _, Reply).
+
+%% status(+Ps, +Index, -Reply) is semidet.
+%% status(+Ps, +Index, +Params, -Reply) is semidet.
+%
+% Get a comprehensive status information of one or more indices.
+% See [here](http://elastic.co/guide/reference/api/admin-indices-_/).
+
+status(Ps, Index, Reply) :-
+    status(Ps, Index, _{}, Reply).
+
+status(Ps, Index, Params, Reply) :-
+    make_context([Index, '_status'], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
+
+%% stats(+Ps, +Index, +Metric, -Reply) is semidet.
+%% stats(+Ps, +Index, +Metric, +Params, -Reply) is semidet.
+%
+% Retrieve statistics on different operations happening on an index.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-stats.html).
+
+stats(Ps, Index, Metric, Reply) :-
+    stats(Ps, Index, Metric, _{}, Reply).
+
+stats(Ps, Index, Metric, Params, Reply) :-
+    make_context([Index, '_stats', Metric], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
+
+%% segments(+Ps, +Index, -Reply) is semidet.
+%% segments(+Ps, +Index, +Params, -Reply) is semidet.
+%
+% Provide low level segments information that a Lucene index (shard level) is built with.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-segments.html).
+
+segments(Ps, Index, Reply) :-
+    segments(Ps, Index, _{}, Reply).
+
+segments(Ps, Index, Params, Reply) :-
+    make_context([Index, '_segments'], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
+
+%% optimize(+Ps, +Index, -Reply) is semidet.
+%% optimize(+Ps, +Index, +Params, -Reply) is semidet.
+%
+% Explicitly optimize one or more indices through an API.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-optimize.html).
+
+optimize(Ps, Index, Reply) :-
+    optimize(Ps, Index, _{}, Reply).
+
+optimize(Ps, Index, Params, Reply) :-
+    make_context([Index, '_optimize'], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
+
+%% validate_query(+Ps, +Index, +DocType, +Body, -Reply) is semidet.
+%% validate_query(+Ps, +Index, +DocType, +Params, +Body, -Reply) is semidet.
+%
+% Validate a potentially expensive query without executing it.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-validate.html).
+
+validate_query(Ps, Index, DocType, Body, Reply) :-
+    validate_query(Ps, Index, DocType, _{}, Body, Reply).
+
+validate_query(Ps, Index, DocType, Params, Body, Reply) :-
+    make_context([Index, DocType, '_validate', query], Context),
+    perform_request(Ps, post, Context, Params, Body, _, Reply).
+
+%% clear_cache(+Ps, +Index, -Reply) is semidet.
+%% clear_cache(+Ps, +Index, +Params, -Reply) is semidet.
+%
+% Clear either all caches or specific cached associated with one ore more indices.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-clearcache.html).
+
+clear_cache(Ps, Index, Reply) :-
+    clear_cache(Ps, Index, _{}, Reply).
+
+clear_cache(Ps, Index, Params, Reply) :-
+    make_context([Index, '_cache', clear], Context),
+    perform_request(Ps, post, Context, Params, '', _, Reply).
+
+%% recovery(+Ps, +Index, -Reply) is semidet.
+%% recovery(+Ps, +Index, +Params, -Reply) is semidet.
+%
+% The indices recovery API provides insight into on-going shard
+% recoveries. Recovery status may be reported for specific indices, or
+% cluster-wide.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/indices-recovery.html).
+
+recovery(Ps, Index, Reply) :-
+    recovery(Ps, Index, _{}, Reply).
+
+recovery(Ps, Index, Params, Reply) :-
+    make_context([Index, '_recovery'], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
+
+%% snapshot_index(+Ps, +Index, -Reply) is semidet.
+%% snapshot_index(+Ps, +Index, +Params, -Reply) is semidet.
+%
+% Explicitly perform a snapshot through the gateway of one or more indices (backup them).
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-gateway-snapshot.html).
+
+snapshot_index(Ps, Index, Reply) :-
+    snapshot_index(Ps, Index, _{}, Reply).
+
+snapshot_index(Ps, Index, Params, Reply) :-
+    make_context([Index, '_gateway', 'snapshot'], Context),
+    perform_request(Ps, post, Context, Params, '', _, Reply).
+
+%% upgrade(+Ps, +Index, -Reply) is semidet.
+%% upgrade(+Ps, +Index, +Params, -Reply) is semidet.
+%
+% Upgrade one or more indices to the latest format through an API.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-upgrade.html).
+
+upgrade(Ps, Index, Reply) :-
+    upgrade(Ps, Index, _{}, Reply).
+
+upgrade(Ps, Index, Params, Reply) :-
+    make_context([Index, '_upgrade'], Context),
+    perform_request(Ps, post, Context, Params, '', _, Reply).
+
+%% get_upgrade(+Ps, +Index, -Reply) is semidet.
+%% get_upgrade(+Ps, +Index, +Params, -Reply) is semidet.
+%
+% Monitor how much of one or more index is upgraded.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-upgrade.html).
+
+get_upgrade(Ps, Index, Reply) :-
+    get_upgrade(Ps, Index, _{}, Reply).
+
+get_upgrade(Ps, Index, Params, Reply) :-
+    make_context([Index, '_upgrade'], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
