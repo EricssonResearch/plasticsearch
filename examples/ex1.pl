@@ -81,6 +81,16 @@ index_op :-
     catch(Ps.indices.delete_template(template1, DeleteTemplateReply), _, true),
     debug(ex1, 'DeleteTemplateReply ~w', DeleteTemplateReply),
     \+ Ps.indices.exists_template(template1),
+    catch(Ps.indices.put_settings(es_test,
+        _{
+            index:_{number_of_replicas:10,refresh_interval:10}
+        },
+        PutSettingsReply), _, true),
+    debug(ex1, 'PutSettingsReply ~w', PutSettingsReply),
+    catch(Ps.indices.get_settings(es_test, 'index.number_of_replicas', GetSettingsReply1), _, true),
+    debug(ex1, 'GetSettingsReply1 ~w', GetSettingsReply1),
+    catch(Ps.indices.get_settings(es_test, '', GetSettingsReply2), _, true),
+    debug(ex1, 'GetSettingsReply2 ~w', GetSettingsReply2),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

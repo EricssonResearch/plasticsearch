@@ -44,7 +44,11 @@
     get_template/3,         % +Ps, +Name, -Reply
     get_template/4,         % +Ps, +Name, +Params, -Reply
     delete_template/3,      % +Ps, +Name, -Reply
-    delete_template/4       % +Ps, +Name, +Params, -Reply
+    delete_template/4,      % +Ps, +Name, +Params, -Reply
+    get_settings/4,         % +Ps, +Index, +Name, -Reply
+    get_settings/5,         % +Ps, +Index, +Name, +Params, -Reply
+    put_settings/4,         % +Ps, +Index, +Body, -Reply
+    put_settings/5          % +Ps, +Index, +Params, +Body, -Reply
 ]).
 
 /** <module> Indices APIs
@@ -392,3 +396,30 @@ delete_template(Ps, Name, Params, Reply) :-
     non_empty(Name, name),
     make_context(['_template', Name], Context),
     perform_request(Ps, delete, Context, Params, _, Reply).
+
+%% get_settings(+Ps, +Index, +Name, -Reply) is semidet.
+%% get_settings(+Ps, +Index, +Name, +Params, -Reply) is semidet.
+%
+% Retrieve settings for one or more (or all) indices.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-settings.html).
+
+get_settings(Ps, Index, Name, Reply) :-
+    get_settings(Ps, Index, Name, _{}, Reply).
+
+get_settings(Ps, Index, Name, Params, Reply) :-
+    make_context([Index, '_settings', Name], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
+
+%% put_settings(+Ps, +Index, +Body, -Reply) is semidet.
+%% put_settings(+Ps, +Index, +Params, +Body, -Reply) is semidet.
+%
+% Change specific index level settings in real time.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html).
+
+put_settings(Ps, Index, Body, Reply) :-
+    put_settings(Ps, Index, _{}, Body, Reply).
+
+put_settings(Ps, Index, Params, Body, Reply) :-
+    non_empty(Body, body),
+    make_context([Index, '_settings'], Context),
+    perform_request(Ps, put, Context, Params, Body, _, Reply).
