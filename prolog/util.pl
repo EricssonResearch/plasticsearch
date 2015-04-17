@@ -22,12 +22,16 @@ make_context(Parts, Context) :-
     ->  Parts1 = Parts
     ;   Parts1 = [Parts]
     ),
-    atomic_list_concat(Parts1, /, Context0),
-    Parts1 = [H|_],
-    (   H \= ''
-    -> atom_concat(/, Context0, Context)
-    ;  Context = Context0
-    ).
+    remove_empty_atom(Parts1, Parts2),
+    atomic_list_concat([''|Parts2], /, Context).
+
+remove_empty_atom([], []) :- !.
+remove_empty_atom([H|T], L) :-
+    H = '', !,
+    remove_empty_atom(T, L).
+remove_empty_atom([H|T], L) :-
+    remove_empty_atom(T, L0),
+    L = [H|L0].
 
 %% random(+List, -Elem) is det.
 %

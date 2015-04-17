@@ -48,7 +48,13 @@
     get_settings/4,         % +Ps, +Index, +Name, -Reply
     get_settings/5,         % +Ps, +Index, +Name, +Params, -Reply
     put_settings/4,         % +Ps, +Index, +Body, -Reply
-    put_settings/5          % +Ps, +Index, +Params, +Body, -Reply
+    put_settings/5,         % +Ps, +Index, +Params, +Body, -Reply
+    put_warmer/6,           % +Ps, +Index, +DocType, +Name, +Body, -Reply
+    put_warmer/7,           % +Ps, +Index, +DocType, +Name, +Params, +Body, -Reply
+    get_warmer/5,           % +Ps, +Index, +DocType, +Name, -Reply
+    get_warmer/6,           % +Ps, +Index, +DocType, +Name, +Params, -Reply
+    delete_warmer/4,        % +Ps, +Index, +Name, -Reply
+    delete_warmer/5         % +Ps, +Index, +Name, +Params, -Reply
 ]).
 
 /** <module> Indices APIs
@@ -423,3 +429,49 @@ put_settings(Ps, Index, Params, Body, Reply) :-
     non_empty(Body, body),
     make_context([Index, '_settings'], Context),
     perform_request(Ps, put, Context, Params, Body, _, Reply).
+
+%% put_warmer(+Ps, +Index, +DocType, +Name, +Body, -Reply) is semidet.
+%% put_warmer(+Ps, +Index, +DocType, +Name, +Params, +Body, -Reply) is semidet.
+%
+% Create an index warmer to run registered search requests to warm up the
+% index before it is available for search.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-warmers.html).
+
+put_warmer(Ps, Index, DocType, Name, Body, Reply) :-
+    put_warmer(Ps, Index, DocType, Name, _{}, Body, Reply).
+
+put_warmer(Ps, Index, DocType, Name, Params, Body, Reply) :-
+    forall(member(Value-Name, [Name-name, Body-body]), non_empty(Value, Name)),
+    (   Index = '', DocType \= ''
+    ->  Index1 = '_all'
+    ;   Index1 = Index
+    ),
+    make_context([Index1, DocType, '_warmer', Name], Context),
+    perform_request(Ps, put, Context, Params, Body, _, Reply).
+
+%% get_warmer(+Ps, +Index, +DocType, +Name, -Reply) is semidet.
+%% get_warmer(+Ps, +Index, +DocType, +Name, +Params, -Reply) is semidet.
+%
+% Retrieve an index warmer.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-warmers.html).
+
+get_warmer(Ps, Index, DocType, Name, Reply) :-
+    get_warmer(Ps, Index, DocType, Name, _{}, Reply).
+
+get_warmer(Ps, Index, DocType, Name, Params, Reply) :-
+    make_context([Index, DocType, '_warmer', Name], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
+
+%% delete_warmer(+Ps, +Index, +Name, -Reply) is semidet.
+%% delete_warmer(+Ps, +Index, +Name, +Params, -Reply) is semidet.
+%
+% Delete an index warmer.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-warmers.html).
+
+delete_warmer(Ps, Index, Name, Reply) :-
+    delete_warmer(Ps, Index, Name, _{}, Reply).
+
+delete_warmer(Ps, Index, Name, Params, Reply) :-
+    forall(member(Value-Name, [Index-index, Name-name]), non_empty(Value, Name)),
+    make_context([Index, '_warmer', Name], Context),
+    perform_request(Ps, delete, Context, Params, _, Reply).

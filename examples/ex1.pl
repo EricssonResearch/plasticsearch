@@ -91,6 +91,19 @@ index_op :-
     debug(ex1, 'GetSettingsReply1 ~w', GetSettingsReply1),
     catch(Ps.indices.get_settings(es_test, '', GetSettingsReply2), _, true),
     debug(ex1, 'GetSettingsReply2 ~w', GetSettingsReply2),
+    catch(Ps.indices.put_warmer(es_test, tweet, warmer1,
+        _{
+            query:_{match_all:_{}},
+            aggs:_{aggs_1:_{terms:_{field:field}}}
+        },
+        PutWarmerReply), _, true),
+    debug(ex1, 'PutWarmerReply ~w', PutWarmerReply),
+    catch(Ps.indices.get_warmer(es_test, tweet, warmer1, GetWarmerReply1), _, true),
+    debug(ex1, 'GetWarmerReply1 ~w', GetWarmerReply1),
+    catch(Ps.indices.delete_warmer(es_test, warmer1, DeleteWarmerReply), _, true),
+    debug(ex1, 'DeleteWarmerReply ~w', DeleteWarmerReply),
+    catch(Ps.indices.get_warmer(es_test, '', '', GetWarmerReply2), _, true),
+    debug(ex1, 'GetWarmerReply2 ~w', GetWarmerReply2),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
