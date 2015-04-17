@@ -35,8 +35,16 @@
     get_aliases/5,          % +Ps, +Index, +Aliases, +Params, -Reply
     update_aliases/3,       % +Ps, +Body, -Reply
     update_aliases/4,       % +Ps, +Params, +Body, -Reply
-    delete_alias/4,          % +Ps, +Index, +Alias, -Reply
-    delete_alias/5           % +Ps, +Index, +Alias, +Params, -Reply
+    delete_alias/4,         % +Ps, +Index, +Alias, -Reply
+    delete_alias/5,         % +Ps, +Index, +Alias, +Params, -Reply
+    put_template/4,         % +Ps, +Name, +Body, -Reply
+    put_template/5,         % +Ps, +Name, +Params, +Body, -Reply
+    exists_template/2,      % +Ps, +Name
+    exists_template/3,      % +Ps, +Name, +Params
+    get_template/3,         % +Ps, +Name, -Reply
+    get_template/4,         % +Ps, +Name, +Params, -Reply
+    delete_template/3,      % +Ps, +Name, -Reply
+    delete_template/4       % +Ps, +Name, +Params, -Reply
 ]).
 
 /** <module> Indices APIs
@@ -323,3 +331,64 @@ delete_alias(Ps, Index, Alias, Params, Reply) :-
     forall(member(Value-Name, [Index-index, Alias-alias]), non_empty(Value, Name)),
     make_context([Index, '_alias', Alias], Context),
     perform_request(Ps, delete, Context, Params,  _, Reply).
+
+%% put_template(+Ps, +Name, +Body, -Reply) is semidet.
+%% put_template(+Ps, +Name, +Params, +Body, -Reply) is semidet.
+%
+% Create an index template that will automatically be applied to new
+% indices created.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-templates.html).
+
+put_template(Ps, Name, Body, Reply) :-
+    put_template(Ps, Name, _{}, Body, Reply).
+
+put_template(Ps, Name, Params, Body, Reply) :-
+    forall(member(Value-Name, [Name-name, Body-body]), non_empty(Value, Name)),
+    make_context(['_template', Name], Context),
+    perform_request(Ps, put, Context, Params, Body, _, Reply).
+
+%% exists_template(+Ps, +Name) is semidet.
+%% exists_template(+Ps, +Name, +Params) is semidet.
+%
+% Return a boolean indicating whether given template exists.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-templates.html).
+
+exists_template(Ps, Name) :-
+    exists_template(Ps, Name, _{}).
+
+exists_template(Ps, Name, Params) :-
+    non_empty(Name, name),
+    make_context(['_template', Name], Context),
+    (   catch(perform_request(Ps, head, Context, Params, _, _), E, true)
+    ->  (   var(E)
+        ->  true
+        ;   E = plasticsearch_exception(404, _)
+        )
+    ).
+
+%% get_template(+Ps, +Name, -Reply) is semidet.
+%% get_template(+Ps, +Name, +Params, -Reply) is semidet.
+%
+% Retrieve an index template by its name.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-templates.html).
+
+get_template(Ps, Name, Reply) :-
+    get_template(Ps, Name, _{}, Reply).
+
+get_template(Ps, Name, Params, Reply) :-
+    make_context(['_template', Name], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
+
+%% delete_template(+Ps, +Name, -Reply) is semidet.
+%% delete_template(+Ps, +Name, +Params, -Reply) is semidet.
+%
+% Delete an index template by its name.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-templates.html).
+
+delete_template(Ps, Name, Reply) :-
+    delete_template(Ps, Name, _{}, Reply).
+
+delete_template(Ps, Name, Params, Reply) :-
+    non_empty(Name, name),
+    make_context(['_template', Name], Context),
+    perform_request(Ps, delete, Context, Params, _, Reply).

@@ -67,6 +67,20 @@ index_op :-
     catch(Ps.indices.delete_alias(es_test, es_test_alias1, DeleteAliasReply), _, true),
     debug(ex1, 'DeleteAliasReply ~w', DeleteAliasReply),
     \+ Ps.indices.exists_alias(es_test, es_test_alias1),
+    catch(Ps.indices.put_template(template1,
+        _{
+            template:'te*',
+            settings:_{number_of_shards:1},
+            mappings:_{type1:_{'_source':_{enabled:false}}}
+        },
+        PutTemplateReply), _, true),
+    debug(ex1, 'PutTemplateReply ~w', PutTemplateReply),
+    Ps.indices.exists_template(template1),
+    catch(Ps.indices.get_template(template1, GetTemplateReply), _, true),
+    debug(ex1, 'GetTemplateReply ~w', GetTemplateReply),
+    catch(Ps.indices.delete_template(template1, DeleteTemplateReply), _, true),
+    debug(ex1, 'DeleteTemplateReply ~w', DeleteTemplateReply),
+    \+ Ps.indices.exists_template(template1),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
