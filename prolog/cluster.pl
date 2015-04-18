@@ -48,7 +48,7 @@ health(Ps, Index, Params, Reply) :-
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-pending.html).
 
 pending_tasks(Ps, Reply) :-
-    pending_task(Ps, _{}, Reply).
+    pending_tasks(Ps, _{}, Reply).
 
 pending_tasks(Ps, Params, Reply) :-
     perform_request(Ps, get, '/_cluster/pending_tasks', Params, _, Reply).

@@ -143,3 +143,25 @@ index_op :-
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
+
+cluster_op :-
+    plasticsearch(Ps, ['http://192.121.150.101:8200', 'http://192.121.150.101:9200'],
+        [dead_timeout(1), retry_on_status([502, 503, 504])]),
+    debug(ex1, 'Plasticsearch ~w', [Ps]),
+    catch(Ps.indices.create(es_test,
+        _{settings: _{index: _{'mapping.allow_type_wrapper': true}}},
+        CreateReply), _, true),
+    debug(ex1, 'Create ~w', CreateReply),
+    catch(Ps.cluster.health(es_test, HealthReply1), _, true),
+    debug(ex1, 'HealthReply1 ~w', HealthReply1),
+    catch(Ps.cluster.health('', HealthReply2), _, true),
+    debug(ex1, 'HealthReply2 ~w', HealthReply2),
+    catch(Ps.cluster.pending_tasks(PendingTasksReply), _, true),
+    debug(ex1, 'PendingTasksReply ~w', PendingTasksReply),
+    catch(Ps.cluster.state(es_test, '', StateReply), _, true),
+    debug(ex1, 'StateReply ~w', StateReply),
+    catch(Ps.cluster.stats('', StatsReply), _, true),
+    debug(ex1, 'StatsReply ~w', StatsReply),
+    catch(Ps.indices.delete(es_test, DeleteReply), _, true),
+    debug(ex1, 'Delete ~w', DeleteReply),
+    destroy(Ps).

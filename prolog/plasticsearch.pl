@@ -19,8 +19,8 @@ This is basically a Prolog version of [Elasticsearch Python APIs](https://github
 :- use_module(library(uri)).
 
 :- use_module(registry).
-:- use_module(cluster).
-:- use_module(indices).
+:- use_module(cluster, []).
+:- use_module(indices, []).
 
 %% '.'(+Ps, +Term, -Result) is semidet.
 %
