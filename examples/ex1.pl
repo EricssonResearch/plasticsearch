@@ -194,4 +194,11 @@ nodes_op :-
     catch(Ps.nodes.hot_threads('', HotThreadsReply), _, true),
     debug(ex1, 'HotThreadsReply ~w', HotThreadsReply),
     destroy(Ps).
-    
+
+ps_op :-
+    plasticsearch(Ps, ['http://192.121.150.101:8200', 'http://192.121.150.101:9200'],
+        [dead_timeout(1), retry_on_status([502, 503, 504])]),
+    Ps.ping,
+    catch(Ps.info(InfoReply), _, true),
+    debug(ex1, 'InfoReply ~w', InfoReply),
+    destroy(Ps).

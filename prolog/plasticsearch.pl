@@ -3,7 +3,11 @@
     plasticsearch/1,    % -Ps
     plasticsearch/2,    % -Ps, +Options
     plasticsearch/3,    % -Ps, +Hosts, +Options
-    destroy/1           % +Ps
+    destroy/1,          % +Ps
+    ping/1,             % +Ps
+    ping/2,             % +Ps, +Params
+    info/2,             % +Ps, -Reply
+    info/3              % +Ps, +Params, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -24,6 +28,9 @@ This is basically a Prolog version of [Elasticsearch Python APIs](https://github
 :- use_module(nodes, []).
 :- use_module(indices, []).
 :- use_module(snapshots, []).
+
+:- use_module(transport).
+:- use_module(util).
 
 %% '.'(+Ps, +Term, -Result) is semidet.
 %
@@ -129,3 +136,29 @@ fill_options0([H|T], OldOptions, NewOptions) :-
 
 destroy(Ps) :-
     ignore(delete(Ps)).
+
+%% ping(+Ps) is semidet.
+%% ping(+Ps, +Params) is semidet.
+%
+% Returns True if the cluster is up, False otherwise.
+
+ping(Ps) :-
+    ping(Ps, _{}).
+
+ping(Ps, Params) :-
+    (   catch(perform_request(Ps, head, /, Params, _, _), E, true)
+    ->  (   var(E)
+        ->  true
+        )
+    ).
+
+%% info(+Ps, -Reply) is semidet.
+%% info(+Ps, +Params, -Reply) is semidet.
+%
+% Get the basic info from the current cluster.
+
+info(Ps, Reply) :-
+    info(Ps, _{}, Reply).
+
+info(Ps, Params, Reply) :-
+    perform_request(Ps, get, /, Params, _, Reply).
