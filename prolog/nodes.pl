@@ -73,4 +73,4 @@ hot_threads(Ps, NodeID, Reply) :-
 
 hot_threads(Ps, NodeID, Params, Reply) :-
     make_context(['_nodes', NodeID, 'hot_threads'], Context),
-    perform_request(Ps, get, Context, Params, '', _, Reply).
+    perform_request(Ps, get, Context, Params, _, Reply).

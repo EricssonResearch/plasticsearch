@@ -180,3 +180,17 @@ cluster_op :-
     debug(ex1, 'GetSettingsReply ~w', GetSettingsReply),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
+
+nodes_op :-
+    plasticsearch(Ps, ['http://192.121.150.101:8200', 'http://192.121.150.101:9200'],
+        [dead_timeout(1), retry_on_status([502, 503, 504])]),
+    debug(ex1, 'Plasticsearch ~w', [Ps]),
+    catch(Ps.nodes.info('', 'jvm,process', InfoReply), _, true),
+    debug(ex1, 'InfoReply ~w', InfoReply),
+    catch(Ps.nodes.shutdown('node1', ShutdownReply), _, true),
+    debug(ex1, 'ShutdownReply ~w', ShutdownReply),
+    catch(Ps.nodes.stats('', '', '', StatsReply), _, true),
+    debug(ex1, 'StatsReply ~w', StatsReply),
+    catch(Ps.nodes.hot_threads('', HotThreadsReply), _, true),
+    debug(ex1, 'HotThreadsReply ~w', HotThreadsReply),
+    destroy(Ps).

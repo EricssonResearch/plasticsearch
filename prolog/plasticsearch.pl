@@ -29,6 +29,7 @@ This is basically a Prolog version of [Elasticsearch Python APIs](https://github
 % Syntactic sugar for invoking APIs.
 
 '.'(Ps, cluster, [cluster, Ps]) :- !.
+'.'(Ps, nodes, [nodes, Ps]) :- !.
 '.'(Ps, indices, [indices, Ps]) :- !.
 
 '.'([Module, Ps], Term, true) :- !,
