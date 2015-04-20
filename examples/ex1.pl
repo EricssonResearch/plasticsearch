@@ -162,6 +162,21 @@ cluster_op :-
     debug(ex1, 'StateReply ~w', StateReply),
     catch(Ps.cluster.stats('', StatsReply), _, true),
     debug(ex1, 'StatsReply ~w', StatsReply),
+    catch(Ps.cluster.reroute(_{
+            commands:[
+                _{
+                    move:_{index:es_test, shard:0, from_node:node1, to_node:node2}
+                },
+                _{
+                    allocate:_{index:es_test, shard:1, node:node3}
+                }
+            ]
+        }, _), error(plasticsearch_exception(400, _)), true),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
+    catch(Ps.cluster.put_settings(_{persistent:_{'discovery.zen.minimum_master_nodes':1}},
+        PutSettingsReply), _, true),
+    debug(ex1, 'PutSettingsReply ~w', PutSettingsReply),
+    catch(Ps.cluster.get_settings(GetSettingsReply), _, true),
+    debug(ex1, 'GetSettingsReply ~w', GetSettingsReply),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
