@@ -14,7 +14,7 @@ Manage nodes.
 
 @auther Hongxin Liang
 @license TBD
-@see 
+@see http://www.elastic.co/guide/en/elasticsearch/reference/current/cluster.html
 */
 
 :- use_module(transport).

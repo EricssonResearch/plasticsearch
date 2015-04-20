@@ -194,3 +194,4 @@ nodes_op :-
     catch(Ps.nodes.hot_threads('', HotThreadsReply), _, true),
     debug(ex1, 'HotThreadsReply ~w', HotThreadsReply),
     destroy(Ps).
+    

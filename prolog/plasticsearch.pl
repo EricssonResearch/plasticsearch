@@ -23,6 +23,7 @@ This is basically a Prolog version of [Elasticsearch Python APIs](https://github
 :- use_module(cluster, []).
 :- use_module(nodes, []).
 :- use_module(indices, []).
+:- use_module(snapshots, []).
 
 %% '.'(+Ps, +Term, -Result) is semidet.
 %
@@ -31,6 +32,7 @@ This is basically a Prolog version of [Elasticsearch Python APIs](https://github
 '.'(Ps, cluster, [cluster, Ps]) :- !.
 '.'(Ps, nodes, [nodes, Ps]) :- !.
 '.'(Ps, indices, [indices, Ps]) :- !.
+'.'(Ps, snapshots, [snapshots, Ps]) :- !.
 
 '.'([Module, Ps], Term, true) :- !,
     Term =.. [Name|Args],
