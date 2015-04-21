@@ -162,3 +162,16 @@ info(Ps, Reply) :-
 
 info(Ps, Params, Reply) :-
     perform_request(Ps, get, /, Params, _, Reply).
+
+create(Ps, Index, DocType, Id, Body) :-
+    create(Ps, Index, DocType, Id, _{}, Body).
+
+create(Ps, Index, DocType, Id, Params, Body) :-
+    index(Ps, Index, DocType, Id, [op_type=create|Params], Body).
+
+index(Ps, Index, DocType, Id, Body) :-
+    index(Ps, Index, DocType, Id, _{}, Body).
+
+index(Ps, Index, DocType, Id, Params, Body) :-
+    forall(member(Value-Name, [Index-index, DocType-doc_type, Body-body]), non_empty(Value, Name)),
+    (   non_empty(Id))
