@@ -10,6 +10,7 @@
 */
 
 :- use_module(library(uri)).
+:- use_module(library(lists)).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_open)).
 :- use_module(library(http/http_json)).
@@ -102,9 +103,14 @@ get_timeout_option(Params, Timeout, Params1) :-
 
 compose_url(uri_components(Scheme, Authority, Path, Search, Fragment), Context, Params, URL) :-
     atom_concat(Path, Context, NewPath),
-    dict_pairs(Params, _, Pairs),
-    uri_query_components(Search, Pairs),
-    uri_components(URL, uri_components(Scheme, Authority, NewPath, Search, Fragment)).
+    dict_pairs(Params, _, Pairs0),
+    (   nonvar(Search)
+    ->  uri_query_components(Search, Pairs1),
+        append(Pairs1, Pairs0, Pairs)
+    ;   Pairs = Pairs0
+    ),
+    uri_query_components(NewSearch, Pairs),
+    uri_components(URL, uri_components(Scheme, Authority, NewPath, NewSearch, Fragment)).
 
 handle_status(Status, Reply, RetryOnStatus, Ignore, Success, Retry) :-
     (   once((Status >= 200, Status < 300; memberchk(Status, Ignore)))
