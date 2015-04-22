@@ -211,6 +211,22 @@ ps_op :-
         tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
     }, CreateIndexReply1), _, true),
     debug(ex1, 'CreateIndexReply1 ~w', CreateIndexReply1),
+    catch(Ps.create(es_test, tweet, '1', _{
+        tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
+    }, CreateIndexReply2), _, true),
+    debug(ex1, 'CreateIndexReply2 ~w', CreateIndexReply2),
+    catch(Ps.create(es_test, tweet, '1', _{
+        tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
+    }, CreateIndexReply3), _, true),
+    debug(ex1, 'CreateIndexReply3 ~w', CreateIndexReply3),
+    catch(Ps.index(es_test, tweet, '', _{
+        tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
+    }, IndexReply1), _, true),
+    debug(ex1, 'IndexReply1 ~w', IndexReply1),
+    catch(Ps.index(es_test, tweet, '2', _{
+        tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
+    }, IndexReply2), _, true),
+    debug(ex1, 'IndexReply2 ~w', IndexReply2),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

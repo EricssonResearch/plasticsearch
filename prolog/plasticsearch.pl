@@ -190,7 +190,7 @@ create(Ps, Index, DocType, ID, Params, Body, Reply) :-
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html).
 
 index(Ps, Index, DocType, ID, Body, Reply) :-
-    index(Ps, Index, DocType, ID, _{}, Body), Reply.
+    index(Ps, Index, DocType, ID, _{}, Body, Reply).
 
 index(Ps, Index, DocType, ID, Params, Body, Reply) :-
     forall(member(Value-Name, [Index-index, DocType-doc_type, Body-body]), non_empty(Value, Name)),
