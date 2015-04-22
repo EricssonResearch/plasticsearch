@@ -178,6 +178,7 @@ cluster_op :-
     debug(ex1, 'PutSettingsReply ~w', PutSettingsReply),
     catch(Ps.cluster.get_settings(GetSettingsReply), _, true),
     debug(ex1, 'GetSettingsReply ~w', GetSettingsReply),
+    catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
 
@@ -201,4 +202,19 @@ ps_op :-
     Ps.ping,
     catch(Ps.info(InfoReply), _, true),
     debug(ex1, 'InfoReply ~w', InfoReply),
+    catch(Ps.indices.create(es_test,
+        _{settings: _{index: _{'mapping.allow_type_wrapper': true}}},
+        CreateReply), _, true),
+    debug(ex1, 'Create ~w', CreateReply),
+    get_current_time_as_atom(Time1),
+    catch(Ps.create(es_test, tweet, '', _{
+        tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
+    }, CreateIndexReply1), _, true),
+    debug(ex1, 'CreateIndexReply1 ~w', CreateIndexReply1),
+    catch(Ps.indices.delete(es_test, DeleteReply), _, true),
+    debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
+
+get_current_time_as_atom(Time) :-
+    get_time(T),
+    format_time(atom(Time), '%FT%T%z', T, posix).

@@ -7,11 +7,16 @@
     ping/1,             % +Ps
     ping/2,             % +Ps, +Params
     info/2,             % +Ps, -Reply
-    info/3              % +Ps, +Params, -Reply
+    info/3,             % +Ps, +Params, -Reply
+    create/6,           % +Ps, +Index, +DocType, +ID, +Body, -Reply
+    create/7,           % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
+    index/6,            % +Ps, +Index, +DocType, +ID, +Body, -Reply
+    index/7             % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
-This is basically a Prolog version of [Elasticsearch Python APIs](https://github.com/elastic/elasticsearch-py).
+This is basically a Prolog version of
+[Elasticsearch Python APIs](https://github.com/elastic/elasticsearch-py).
 
 @auther Hongxin Liang
 @license TBD
@@ -163,15 +168,35 @@ info(Ps, Reply) :-
 info(Ps, Params, Reply) :-
     perform_request(Ps, get, /, Params, _, Reply).
 
-create(Ps, Index, DocType, Id, Body) :-
-    create(Ps, Index, DocType, Id, _{}, Body).
+%% create(+Ps, +Index, +DocType, +ID, +Body, -Reply) is semidet.
+%% create(+Ps, +Index, +DocType, +ID, +Params, +Body, -Reply) is semidet.
+%
+% Adds a typed document in a specific index, making it searchable.
+% Behind the scenes this predicate calls index/7 with = op_type=create = as
+% additional parameter.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html).
 
-create(Ps, Index, DocType, Id, Params, Body) :-
-    index(Ps, Index, DocType, Id, [op_type=create|Params], Body).
+create(Ps, Index, DocType, ID, Body, Reply) :-
+    create(Ps, Index, DocType, ID, _{}, Body, Reply).
 
-index(Ps, Index, DocType, Id, Body) :-
-    index(Ps, Index, DocType, Id, _{}, Body).
+create(Ps, Index, DocType, ID, Params, Body, Reply) :-
+    put_dict([op_type=create], Params, NewParams),
+    index(Ps, Index, DocType, ID, NewParams, Body, Reply).
 
-index(Ps, Index, DocType, Id, Params, Body) :-
+%% index(+Ps, +Index, +DocType, +ID, +Body, -Reply) is semidet.
+%% index(+Ps, +Index, +DocType, +ID, +Params, +Body, -Reply) is semidet.
+%
+% Adds or updates a typed document in a specific index, making it searchable.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html).
+
+index(Ps, Index, DocType, ID, Body, Reply) :-
+    index(Ps, Index, DocType, ID, _{}, Body), Reply.
+
+index(Ps, Index, DocType, ID, Params, Body, Reply) :-
     forall(member(Value-Name, [Index-index, DocType-doc_type, Body-body]), non_empty(Value, Name)),
-    (   non_empty(Id))
+    (   non_empty(ID, _, false)
+    ->  Method = put
+    ;   Method = post
+    ),
+    make_context([Index, DocType, ID], Context),
+    perform_request(Ps, Method, Context, Params, Body, _, Reply).

@@ -2,6 +2,7 @@
     make_context/2,     % +Parts, -Context
     random/2,           % +List, -Elem
     non_empty/2,        % +Input, +Name
+    non_empty/3,        % +Input, +Name, +ThrowIfEmpty
     extract_param/5     % +Params, -NewParams, +Name, -Value, +DefaultValue
 ]).
 
@@ -43,17 +44,23 @@ random(List, Elem) :-
     nth0(Index, List, Elem).
 
 %% non_empty(+Input, +Name) is det.
+%% non_empty(+Input, +Name, +ThrowIfEmpty) is det.
 %
 % Throw an exception if = Input = is empty atom
-% or empty list.
+% or empty list and = ThrowIfEmpty = is = true =.
 
 non_empty(Input, Name) :-
-    (Input = ''; Input = []), !,
-    atomic_list_concat(['Empty value passed for a required argument \'',
-        Name, '\'.'], Message),
-    throw(error(plasticsearch_exception(na, Message))).
+    non_empty(Input, Name, true).
 
-non_empty(_, _).
+non_empty(Input, Name, ThrowIfEmpty) :-
+    once((Input = ''; Input = [])), !,
+    (   ThrowIfEmpty
+    ->  atomic_list_concat(['Empty value passed for a required argument \'',
+            Name, '\'.'], Message),
+        throw(error(plasticsearch_exception(na, Message)))
+    ).
+
+non_empty(_, _, _).
 
 %% extract_param(+Params, -NewParams, +Name, -Value, +DefaultValue) is det.
 %
