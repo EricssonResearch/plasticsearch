@@ -1,6 +1,5 @@
 :- module(util, [
     make_context/2,     % +Parts, -Context
-    random/2,           % +List, -Elem
     non_empty/2,        % +Input, +Name
     non_empty/3,        % +Input, +Name, +ThrowIfEmpty
     extract_param/5     % +Params, -NewParams, +Name, -Value, +DefaultValue
@@ -33,15 +32,6 @@ remove_empty_atom([H|T], L) :-
 remove_empty_atom([H|T], L) :-
     remove_empty_atom(T, L0),
     L = [H|L0].
-
-%% random(+List, -Elem) is det.
-%
-% Randomly select one element from a list.
-
-random(List, Elem) :-
-    length(List, Length),
-    random_between(0, Length, Index),
-    nth0(Index, List, Elem).
 
 %% non_empty(+Input, +Name) is det.
 %% non_empty(+Input, +Name, +ThrowIfEmpty) is det.

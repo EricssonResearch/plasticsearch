@@ -36,7 +36,7 @@ get_connection0(Ps, Connection) :-
             length(Connections, Length),
             Index is RR mod Length,
             nth0(Index, Connections, Connection)
-        ;   random(Connections, Connection)
+        ;   random_select(Connection, Connections, _)
         )
     ).
 
@@ -110,7 +110,7 @@ resurrect0(Ps, Force, Connection) :-
     _{connections:Connections, dead_connections:DeadConnections} :< Value.vars,
     (   DeadConnections = []
     ->  (   Force
-        ->  random(Value.hosts, Connection),
+        ->  random_select(Connection, Value.hosts, _),
             debug(connection_pool,
                 'forced to resurrect, choose a random one ~w', [Connection])
         ;   true
