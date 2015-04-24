@@ -11,7 +11,9 @@
     create/6,           % +Ps, +Index, +DocType, +ID, +Body, -Reply
     create/7,           % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
     index/6,            % +Ps, +Index, +DocType, +ID, +Body, -Reply
-    index/7             % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
+    index/7,            % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
+    exists/4,           % +Ps, +Index, +DocType, +ID
+    exists/5            % +Ps, +Index, +DocType, +ID, +Params
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -200,3 +202,26 @@ index(Ps, Index, DocType, ID, Params, Body, Reply) :-
     ),
     make_context([Index, DocType, ID], Context),
     perform_request(Ps, Method, Context, Params, Body, _, Reply).
+
+%% exists(+Ps, +Index, +DocType, +ID) is semidet.
+%% exists(+Ps, +Index, +DocType, +ID, +Params) is semidet.
+%
+% Returns a boolean indicating whether or not given document exists in Elasticsearch.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get.html).
+
+exists(Ps, Index, DocType, ID) :-
+    exists(Ps, Index, DocType, ID, _{}).
+
+exists(Ps, Index, DocType, ID, Params) :-
+    fix_doc_type(DocType, FixedDocType),
+    forall(member(Value-Name, [Index, FixedDocType-doc_type, ID-id]), non_empty(Value, Name)),
+    make_context([Index, FixedDocType, ID], Context),
+    (   catch(perform_request(Ps, head, Context, Params, _, _), E, true)
+    ->  (   var(E)
+        ->  true
+        ;   E = plasticsearch_exception(404, _)
+        )
+    ).
+
+fix_doc_type('', '_all') :- !.
+fix_doc_type(DocType, DocType).

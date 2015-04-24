@@ -227,6 +227,9 @@ ps_op :-
         tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
     }, IndexReply2), _, true),
     debug(ex1, 'IndexReply2 ~w', IndexReply2),
+    Ps.exists(es_test, '', '1'),
+    Ps.exists(es_test, tweet, '1'),
+    \+ Ps.exists(es_test, tweet, '3'),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
