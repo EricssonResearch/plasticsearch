@@ -246,7 +246,7 @@ ps_op :-
     }, UpdateIndexReply), _, true),
     debug(ex1, 'UpdateIndexReply ~w', UpdateIndexReply),
     sleep(1), % too slow of my workstation??
-    catch(Ps.search(es_test, tweet, _{q:'user:kimchy'}, _, SearchReply1), _, true),
+    catch(Ps.search(es_test, tweet, _{q:'user:kimchy', scroll:'2'}, _, SearchReply1), _, true),
     debug(ex1, 'SearchReply1 ~w', SearchReply1),
     catch(Ps.search(es_test, tweet, _{
         query:_{term:_{user:kimchy}}
@@ -260,6 +260,10 @@ ps_op :-
         query:_{term:_{user:kimchy}}
     }, ExplainReply), _, true),
     debug(ex1, 'ExplainReply ~w', ExplainReply),
+    get_dict('_scroll_id', SearchReply1, ScrollID),
+    debug(ex1, 'ScrollID ~w', [ScrollID]),
+    catch(Ps.scroll(ScrollID, ScrollReply), _, true),
+    debug(ex1, 'ScrollReply ~w', ScrollReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

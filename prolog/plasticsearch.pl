@@ -29,7 +29,9 @@
     search_template/5,  % +Ps, +Index, +DocType, +Body, -Reply
     search_template/6,  % +Ps, +Index, +DocType, +Params, +Body, -Reply
     explain/6,          % +Ps, +Index, +DocType, +ID, +Body, -Reply
-    explain/7           % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
+    explain/7,          % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
+    scroll/3,           % +Ps, ID, -Reply
+    scroll/4            % +Ps, ID, +Params, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -358,6 +360,18 @@ explain(Ps, Index, DocType, ID, Params, Body, Reply) :-
     forall(member(Value-Name, [Index-index, DocType-doc_type, ID-id]), non_empty(Value, Name)),
     make_context([Index, DocType, ID, '_explain'], Context),
     perform_request(Ps, get, Context, Params, Body, _, Reply).
+
+%% scroll(+Ps, +ID, -Reply) is semidet.
+%% scroll(+Ps, +ID, +Params, -Reply) is semidet.
+%
+% Scroll a search request created by specifying the scroll parameter.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html).
+
+scroll(Ps, ID, Reply) :-
+    scroll(Ps, ID, _{}, Reply).
+
+scroll(Ps, ID, Params, Reply) :-
+    perform_request(Ps, get, '/_search/scroll', Params, ID, _, Reply).
 
 fix_doc_type('', '_all') :- !.
 fix_doc_type(DocType, DocType).

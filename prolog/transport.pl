@@ -61,7 +61,7 @@ wrap_body(Body, WrappedBody) :-
     WrappedBody = json(Body).
 
 wrap_body(Body, WrappedBody) :-
-    atom(Body), !,
+    once((string(Body); atom(Body))), !,
     WrappedBody = codes(Body).
 
 http_operation_with_retry(Ps, Context, Params, Operation, Status, Reply) :-
