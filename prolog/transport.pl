@@ -34,6 +34,12 @@ perform_request(Ps, delete, Context, Params, Status, Reply) :- !,
 perform_request(Ps, head, Context, Params, Status, Reply) :- !,
     http_operation_with_retry(Ps, Context, Params, http_head, Status, Reply).
 
+perform_request(Ps, get, Context, Params, Body, Status, Reply) :- !,
+    (   nonvar(Body)
+    ->  perform_request(Ps, post, Context, Params, Body, Status, Reply)
+    ;   perform_request(Ps, get, Context, Params, Status, Reply)
+    ).
+
 perform_request(Ps, post, Context, Params, Body, Status, Reply) :- !,
     wrap_body(Body, WrappedBody),
     http_operation_with_retry(Ps, Context, Params, http_post(WrappedBody), Status, Reply).

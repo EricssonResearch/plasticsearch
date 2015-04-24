@@ -100,10 +100,7 @@ analyze(Ps, Index, Body, Reply) :-
 
 analyze(Ps, Index, Params, Body, Reply) :-
     make_context([Index, '_analyze'], Context),
-    (   var(Body)
-    ->  perform_request(Ps, get, Context, Params, _, Reply)
-    ;   perform_request(Ps, post, Context, Params, Body, _, Reply)
-    ).
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
 
 %% refresh(+Ps, +Index, -Reply) is semidet.
 %% refresh(+Ps, +Index, +Params, -Reply) is semidet.
@@ -559,7 +556,7 @@ validate_query(Ps, Index, DocType, Body, Reply) :-
 
 validate_query(Ps, Index, DocType, Params, Body, Reply) :-
     make_context([Index, DocType, '_validate', query], Context),
-    perform_request(Ps, post, Context, Params, Body, _, Reply).
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
 
 %% clear_cache(+Ps, +Index, -Reply) is semidet.
 %% clear_cache(+Ps, +Index, +Params, -Reply) is semidet.

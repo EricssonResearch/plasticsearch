@@ -257,5 +257,19 @@ get_source(Ps, Index, DocType, ID, Params, Reply) :-
     make_context([Index, FixedDocType, ID, '_source'], Context),
     perform_request(Ps, get, Context, Params, _, Reply).
 
+%% mget(+Ps, +Index, +DocType, +ID, -Reply) is semidet.
+%% mget(+Ps, +Index, +DocType, +ID, +Params, -Reply) is semidet.
+%
+% Get multiple documents based on an index, type (optional) and ids.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html).
+
+mget(Ps, Index, DocType, Body, Reply) :-
+    mget(Ps, Index, DocType, _{}, Body, Reply).
+
+mget(Ps, Index, DocType, Params, Body, Reply) :-
+    non_empty(Body, body),
+    make_context([Index, DocType, '_mget'], Context),
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
+
 fix_doc_type('', '_all') :- !.
 fix_doc_type(DocType, DocType).

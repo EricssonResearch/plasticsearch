@@ -236,6 +236,11 @@ ps_op :-
     debug(ex1, 'GetReply2 ~w', GetReply2),
     catch(Ps.get_source(es_test, tweet, '2', GetSourceReply), _, true),
     debug(ex1, 'GetSourceReply ~w', GetSourceReply),
+    catch(Ps.mget(es_test, '', _{
+        docs:[_{'_index':es_test, '_type':tweet, '_id':'2'},
+              _{'_index':es_test, '_type':tweet, '_id':'1'}]
+    }, MGetReply), _, true),
+    debug(ex1, 'MGetReply ~w', MGetReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
