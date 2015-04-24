@@ -254,6 +254,8 @@ ps_op :-
     debug(ex1, 'SearchReply2 ~w', SearchReply2),
     catch(Ps.search_shards(es_test, tweet, SearchShardsReply), _, true),
     debug(ex1, 'SearchShardsReply ~w', SearchShardsReply),
+    catch(Ps.search_template('', '', _, SearchTemplateReply1), _, true),
+    debug(ex1, 'SearchTemplateReply1 ~w', SearchTemplateReply1),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

@@ -25,7 +25,9 @@
     search/5,           % +Ps, +Index, +DocType, +Body, -Reply
     search/6,           % +Ps, +Index, +DocType, +Params, +Body, -Reply
     search_shards/4,    % +Ps, +Index, +DocType, -Reply
-    search_shards/5     % +Ps, +Index, +DocType, +Params, -Reply
+    search_shards/5,    % +Ps, +Index, +DocType, +Params, -Reply
+    search_template/5,  % +Ps, +Index, +DocType, +Body, -Reply
+    search_template/6   % +Ps, +Index, +DocType, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -293,8 +295,8 @@ update(Ps, Index, DocType, ID, Params, Body, Reply) :-
     make_context([Index, DocType, ID, '_update'], Context),
     perform_request(Ps, post, Context, Params, Body, _, Reply).
 
-%% search(+Ps, +Index, +DocType, +ID, -Reply) is semidet.
-%% search(+Ps, +Index, +DocType, +ID, +Params, -Reply) is semidet.
+%% search(+Ps, +Index, +DocType, +Body, -Reply) is semidet.
+%% search(+Ps, +Index, +DocType, +Params, +Body, -Reply) is semidet.
 %
 % Execute a search query and get back search hits that match the query.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html).
@@ -324,6 +326,20 @@ search_shards(Ps, Index, DocType, Reply) :-
 search_shards(Ps, Index, DocType, Params, Reply) :-
     make_context([Index, DocType, '_search_shards'], Context),
     perform_request(Ps, get, Context, Params, _, Reply).
+
+%% search_template(+Ps, +Index, +DocType, +Body, -Reply) is semidet.
+%% search_template(+Ps, +Index, +DocType, +Params, +Body, -Reply) is semidet.
+%
+% A query that accepts a query template and a map of key/value pairs to
+% fill in template parameters.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/query-dsl-template-query.html).
+
+search_template(Ps, Index, DocType, Body, Reply) :-
+    search_template(Ps, Index, DocType, _{}, Body, Reply).
+
+search_template(Ps, Index, DocType, Params, Body, Reply) :-
+    make_context([Index, DocType, '_search', 'template'], Context),
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
 
 fix_doc_type('', '_all') :- !.
 fix_doc_type(DocType, DocType).
