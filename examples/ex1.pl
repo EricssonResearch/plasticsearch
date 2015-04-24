@@ -252,6 +252,8 @@ ps_op :-
         query:_{term:_{user:kimchy}}
     }, SearchReply2), _, true),
     debug(ex1, 'SearchReply2 ~w', SearchReply2),
+    catch(Ps.search_shards(es_test, tweet, SearchShardsReply), _, true),
+    debug(ex1, 'SearchShardsReply ~w', SearchShardsReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

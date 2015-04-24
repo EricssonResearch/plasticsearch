@@ -23,7 +23,9 @@
     update/6,           % +Ps, +Index, +DocType, +ID, +Body, -Reply
     update/7,           % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
     search/5,           % +Ps, +Index, +DocType, +Body, -Reply
-    search/6            % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    search/6,           % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    search_shards/4,    % +Ps, +Index, +DocType, -Reply
+    search_shards/5     % +Ps, +Index, +DocType, +Params, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -307,6 +309,21 @@ search(Ps, Index, DocType, Params, Body, Reply) :-
     ),
     make_context([Index1, DocType, '_search'], Context),
     perform_request(Ps, get, Context, Params, Body, _, Reply).
+
+%% search_shards(+Ps, +Index, +DocType, -Reply) is semidet.
+%% search_shards(+Ps, +Index, +DocType, +Params, -Reply) is semidet.
+%
+% The search shards api returns the indices and shards that a search
+% request would be executed against. This can give useful feedback for working
+% out issues or planning optimizations with routing and shard preferences.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/search-shards.html).
+
+search_shards(Ps, Index, DocType, Reply) :-
+    search_shards(Ps, Index, DocType, _{}, Reply).
+
+search_shards(Ps, Index, DocType, Params, Reply) :-
+    make_context([Index, DocType, '_search_shards'], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
 
 fix_doc_type('', '_all') :- !.
 fix_doc_type(DocType, DocType).
