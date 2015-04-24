@@ -245,6 +245,13 @@ ps_op :-
         doc:_{new_field:new_value}
     }, UpdateIndexReply), _, true),
     debug(ex1, 'UpdateIndexReply ~w', UpdateIndexReply),
+    sleep(1), % too slow of my workstation??
+    catch(Ps.search(es_test, tweet, _{q:'user:kimchy'}, _, SearchReply1), _, true),
+    debug(ex1, 'SearchReply1 ~w', SearchReply1),
+    catch(Ps.search(es_test, tweet, _{
+        query:_{term:_{user:kimchy}}
+    }, SearchReply2), _, true),
+    debug(ex1, 'SearchReply2 ~w', SearchReply2),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

@@ -21,7 +21,9 @@
     mget/5,             % +Ps, +Index, +DocType, -Reply
     mget/6,             % +Ps, +Index, +DocType, +Params, -Reply
     update/6,           % +Ps, +Index, +DocType, +ID, +Body, -Reply
-    update/7            % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
+    update/7,           % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
+    search/5,           % +Ps, +Index, +DocType, +Body, -Reply
+    search/6            % +Ps, +Index, +DocType, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -288,6 +290,23 @@ update(Ps, Index, DocType, ID, Params, Body, Reply) :-
     forall(member(Value-Name, [Index-index, DocType-doc_type, ID-id]), non_empty(Value, Name)),
     make_context([Index, DocType, ID, '_update'], Context),
     perform_request(Ps, post, Context, Params, Body, _, Reply).
+
+%% search(+Ps, +Index, +DocType, +ID, -Reply) is semidet.
+%% search(+Ps, +Index, +DocType, +ID, +Params, -Reply) is semidet.
+%
+% Execute a search query and get back search hits that match the query.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html).
+
+search(Ps, Index, DocType, Body, Reply) :-
+    search(Ps, Index, DocType, _{}, Body, Reply).
+
+search(Ps, Index, DocType, Params, Body, Reply) :-
+    (   Index = '', DocType \= ''
+    ->  Index1 = '_all'
+    ;   Index1 = Index
+    ),
+    make_context([Index1, DocType, '_search'], Context),
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
 
 fix_doc_type('', '_all') :- !.
 fix_doc_type(DocType, DocType).
