@@ -256,6 +256,10 @@ ps_op :-
     debug(ex1, 'SearchShardsReply ~w', SearchShardsReply),
     catch(Ps.search_template('', '', _, SearchTemplateReply1), _, true),
     debug(ex1, 'SearchTemplateReply1 ~w', SearchTemplateReply1),
+    catch(Ps.explain(es_test, tweet, '2', _{
+        query:_{term:_{user:kimchy}}
+    }, ExplainReply), _, true),
+    debug(ex1, 'ExplainReply ~w', ExplainReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

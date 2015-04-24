@@ -27,7 +27,9 @@
     search_shards/4,    % +Ps, +Index, +DocType, -Reply
     search_shards/5,    % +Ps, +Index, +DocType, +Params, -Reply
     search_template/5,  % +Ps, +Index, +DocType, +Body, -Reply
-    search_template/6   % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    search_template/6,  % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    explain/6,          % +Ps, +Index, +DocType, +ID, +Body, -Reply
+    explain/7           % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -281,8 +283,8 @@ mget(Ps, Index, DocType, Params, Body, Reply) :-
     make_context([Index, DocType, '_mget'], Context),
     perform_request(Ps, get, Context, Params, Body, _, Reply).
 
-%% update(+Ps, +Index, +DocType, +ID, -Reply) is semidet.
-%% update(+Ps, +Index, +DocType, +ID, +Params, -Reply) is semidet.
+%% update(+Ps, +Index, +DocType, +ID, +Body, -Reply) is semidet.
+%% update(+Ps, +Index, +DocType, +ID, +Params, +Body, -Reply) is semidet.
 %
 % Update a document based on a script or partial data provided.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update.html).
@@ -339,6 +341,22 @@ search_template(Ps, Index, DocType, Body, Reply) :-
 
 search_template(Ps, Index, DocType, Params, Body, Reply) :-
     make_context([Index, DocType, '_search', 'template'], Context),
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
+
+%% explain(+Ps, +Index, +DocType, +ID, +Body, -Reply) is semidet.
+%% explain(+Ps, +Index, +DocType, +ID, +Params, +Body, -Reply) is semidet.
+%
+% The explain api computes a score explanation for a query and a specific
+% document. This can give useful feedback whether a document matches or
+% didn't match a specific query.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-explain.html).
+
+explain(Ps, Index, DocType, ID, Body, Reply) :-
+    explain(Ps, Index, DocType, ID, _{}, Body, Reply).
+
+explain(Ps, Index, DocType, ID, Params, Body, Reply) :-
+    forall(member(Value-Name, [Index-index, DocType-doc_type, ID-id]), non_empty(Value, Name)),
+    make_context([Index, DocType, ID, '_explain'], Context),
     perform_request(Ps, get, Context, Params, Body, _, Reply).
 
 fix_doc_type('', '_all') :- !.
