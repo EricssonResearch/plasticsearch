@@ -15,7 +15,9 @@
     exists/4,           % +Ps, +Index, +DocType, +ID
     exists/5,           % +Ps, +Index, +DocType, +ID, +Params
     get/5,              % +Ps, +Index, +DocType, +ID, -Reply
-    get/6               % +Ps, +Index, +DocType, +ID, +Params, -Reply
+    get/6,              % +Ps, +Index, +DocType, +ID, +Params, -Reply
+    get_source/5,       % +Ps, +Index, +DocType, +ID, -Reply
+    get_source/6        % +Ps, +Index, +DocType, +ID, +Params, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -228,7 +230,7 @@ exists(Ps, Index, DocType, ID, Params) :-
 %% get(+Ps, +Index, +DocType, +ID, -Reply) is semidet.
 %% get(+Ps, +Index, +DocType, +ID, +Params, -Reply) is semidet.
 %
-% Get a typed JSON document from the index based on its id.
+% Get a typed document from the index based on its id.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get_.html).
 
 get(Ps, Index, DocType, ID, Reply) :-
@@ -238,6 +240,21 @@ get(Ps, Index, DocType, ID, Params, Reply) :-
     fix_doc_type(DocType, FixedDocType),
     forall(member(Value-Name, [Index-index, FixedDocType-doc_type, ID-id]), non_empty(Value, Name)),
     make_context([Index, FixedDocType, ID], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
+
+%% get_source(+Ps, +Index, +DocType, +ID, -Reply) is semidet.
+%% get_source(+Ps, +Index, +DocType, +ID, +Params, -Reply) is semidet.
+%
+% Get the source of a document by it's index, type and id.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get_.html).
+
+get_source(Ps, Index, DocType, ID, Reply) :-
+    get_source(Ps, Index, DocType, ID, _{}, Reply).
+
+get_source(Ps, Index, DocType, ID, Params, Reply) :-
+    fix_doc_type(DocType, FixedDocType),
+    forall(member(Value-Name, [Index-index, FixedDocType-doc_type, ID-id]), non_empty(Value, Name)),
+    make_context([Index, FixedDocType, ID, '_source'], Context),
     perform_request(Ps, get, Context, Params, _, Reply).
 
 fix_doc_type('', '_all') :- !.

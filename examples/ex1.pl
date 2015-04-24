@@ -234,6 +234,8 @@ ps_op :-
     debug(ex1, 'GetReply1 ~w', GetReply1),
     catch(Ps.get(es_test, '', '2', GetReply2), _, true),
     debug(ex1, 'GetReply2 ~w', GetReply2),
+    catch(Ps.get_source(es_test, tweet, '2', GetSourceReply), _, true),
+    debug(ex1, 'GetSourceReply ~w', GetSourceReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

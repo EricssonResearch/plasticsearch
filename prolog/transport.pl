@@ -113,10 +113,10 @@ compose_url(uri_components(Scheme, Authority, Path, Search, Fragment), Context, 
     uri_components(URL, uri_components(Scheme, Authority, NewPath, NewSearch, Fragment)).
 
 handle_status(Status, Reply, RetryOnStatus, Ignore, Success, Retry) :-
+    debug(transport, 'status code ~w, reply ~w', [Status, Reply]),
     (   once((Status >= 200, Status < 300; memberchk(Status, Ignore)))
     ->  Success = true
-    ;   debug(transport, 'status code ~w, reply ~w', [Status, Reply]),
-        match_status_and_throw_immediately(Status, Reply),
+    ;   match_status_and_throw_immediately(Status, Reply),
         (   memberchk(Status, RetryOnStatus)
         ->  Retry = true
         ;   Retry = false
@@ -131,6 +131,7 @@ match_status_and_throw_immediately(Status, Reply) :-
     ).
 
 handle_exception(E, RetryOnTimeout, false, Retry) :-
+    debug(transport, 'Exception ~w', [E]),
     (   E = error(socket_error(_), _)
     ->  Retry = true
     ;   (   E = error(timeout_error(_, _) ,_)
