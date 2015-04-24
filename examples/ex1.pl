@@ -230,6 +230,10 @@ ps_op :-
     Ps.exists(es_test, '', '1'),
     Ps.exists(es_test, tweet, '1'),
     \+ Ps.exists(es_test, tweet, '3'),
+    catch(Ps.get(es_test, tweet, '2', GetReply1), _, true),
+    debug(ex1, 'GetReply1 ~w', GetReply1),
+    catch(Ps.get(es_test, '', '2', GetReply2), _, true),
+    debug(ex1, 'GetReply2 ~w', GetReply2),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

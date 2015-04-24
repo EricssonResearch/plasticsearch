@@ -13,7 +13,9 @@
     index/6,            % +Ps, +Index, +DocType, +ID, +Body, -Reply
     index/7,            % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
     exists/4,           % +Ps, +Index, +DocType, +ID
-    exists/5            % +Ps, +Index, +DocType, +ID, +Params
+    exists/5,           % +Ps, +Index, +DocType, +ID, +Params
+    get/5,              % +Ps, +Index, +DocType, +ID, -Reply
+    get/6               % +Ps, +Index, +DocType, +ID, +Params, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -214,7 +216,7 @@ exists(Ps, Index, DocType, ID) :-
 
 exists(Ps, Index, DocType, ID, Params) :-
     fix_doc_type(DocType, FixedDocType),
-    forall(member(Value-Name, [Index, FixedDocType-doc_type, ID-id]), non_empty(Value, Name)),
+    forall(member(Value-Name, [Index-index, FixedDocType-doc_type, ID-id]), non_empty(Value, Name)),
     make_context([Index, FixedDocType, ID], Context),
     (   catch(perform_request(Ps, head, Context, Params, _, _), E, true)
     ->  (   var(E)
@@ -222,6 +224,21 @@ exists(Ps, Index, DocType, ID, Params) :-
         ;   E = plasticsearch_exception(404, _)
         )
     ).
+
+%% get(+Ps, +Index, +DocType, +ID, -Reply) is semidet.
+%% get(+Ps, +Index, +DocType, +ID, +Params, -Reply) is semidet.
+%
+% Get a typed JSON document from the index based on its id.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get_.html).
+
+get(Ps, Index, DocType, ID, Reply) :-
+    get(Ps, Index, DocType, ID, _{}, Reply).
+
+get(Ps, Index, DocType, ID, Params, Reply) :-
+    fix_doc_type(DocType, FixedDocType),
+    forall(member(Value-Name, [Index-index, FixedDocType-doc_type, ID-id]), non_empty(Value, Name)),
+    make_context([Index, FixedDocType, ID], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
 
 fix_doc_type('', '_all') :- !.
 fix_doc_type(DocType, DocType).
