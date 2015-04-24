@@ -241,6 +241,10 @@ ps_op :-
               _{'_index':es_test, '_type':tweet, '_id':'1'}]
     }, MGetReply), _, true),
     debug(ex1, 'MGetReply ~w', MGetReply),
+    catch(Ps.update(es_test, tweet, '2', _{
+        doc:_{new_field:new_value}
+    }, UpdateIndexReply), _, true),
+    debug(ex1, 'UpdateIndexReply ~w', UpdateIndexReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

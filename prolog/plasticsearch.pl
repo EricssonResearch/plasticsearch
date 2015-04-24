@@ -17,7 +17,11 @@
     get/5,              % +Ps, +Index, +DocType, +ID, -Reply
     get/6,              % +Ps, +Index, +DocType, +ID, +Params, -Reply
     get_source/5,       % +Ps, +Index, +DocType, +ID, -Reply
-    get_source/6        % +Ps, +Index, +DocType, +ID, +Params, -Reply
+    get_source/6,       % +Ps, +Index, +DocType, +ID, +Params, -Reply
+    mget/5,             % +Ps, +Index, +DocType, -Reply
+    mget/6,             % +Ps, +Index, +DocType, +Params, -Reply
+    update/6,           % +Ps, +Index, +DocType, +ID, +Body, -Reply
+    update/7            % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -257,8 +261,8 @@ get_source(Ps, Index, DocType, ID, Params, Reply) :-
     make_context([Index, FixedDocType, ID, '_source'], Context),
     perform_request(Ps, get, Context, Params, _, Reply).
 
-%% mget(+Ps, +Index, +DocType, +ID, -Reply) is semidet.
-%% mget(+Ps, +Index, +DocType, +ID, +Params, -Reply) is semidet.
+%% mget(+Ps, +Index, +DocType, -Reply) is semidet.
+%% mget(+Ps, +Index, +DocType, +Params, -Reply) is semidet.
 %
 % Get multiple documents based on an index, type (optional) and ids.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html).
@@ -270,6 +274,20 @@ mget(Ps, Index, DocType, Params, Body, Reply) :-
     non_empty(Body, body),
     make_context([Index, DocType, '_mget'], Context),
     perform_request(Ps, get, Context, Params, Body, _, Reply).
+
+%% update(+Ps, +Index, +DocType, +ID, -Reply) is semidet.
+%% update(+Ps, +Index, +DocType, +ID, +Params, -Reply) is semidet.
+%
+% Update a document based on a script or partial data provided.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update.html).
+
+update(Ps, Index, DocType, ID, Body, Reply) :-
+    update(Ps, Index, DocType, ID, _{}, Body, Reply).
+
+update(Ps, Index, DocType, ID, Params, Body, Reply) :-
+    forall(member(Value-Name, [Index-index, DocType-doc_type, ID-id]), non_empty(Value, Name)),
+    make_context([Index, DocType, ID, '_update'], Context),
+    perform_request(Ps, post, Context, Params, Body, _, Reply).
 
 fix_doc_type('', '_all') :- !.
 fix_doc_type(DocType, DocType).
