@@ -31,7 +31,9 @@
     explain/6,          % +Ps, +Index, +DocType, +ID, +Body, -Reply
     explain/7,          % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
     scroll/3,           % +Ps, ID, -Reply
-    scroll/4            % +Ps, ID, +Params, -Reply
+    scroll/4,           % +Ps, ID, +Params, -Reply
+    clear_scroll/4,     % +Ps, ID, +Body, -Reply
+    clear_scroll/5      % +Ps, ID, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -372,6 +374,24 @@ scroll(Ps, ID, Reply) :-
 
 scroll(Ps, ID, Params, Reply) :-
     perform_request(Ps, get, '/_search/scroll', Params, ID, _, Reply).
+
+%% clear_scroll(+Ps, +ID, -Reply) is semidet.
+%% clear_scroll(+Ps, +ID, +Params, -Reply) is semidet.
+%
+% Clear the scroll request created by specifying the scroll parameter to
+% search.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html).
+
+clear_scroll(Ps, ID, Body, Reply) :-
+    clear_scroll(Ps, ID, _{}, Body, Reply).
+
+clear_scroll(Ps, ID, Params, Body, Reply) :-
+    (   var(Body), ID = ''
+    ->  ID1 = '_all'
+    ;   ID1 = ID
+    ),
+    make_context(['_search', 'scroll', ID1], Context),
+    perform_request(Ps, delete, Context, Params, Body, _, Reply).
 
 fix_doc_type('', '_all') :- !.
 fix_doc_type(DocType, DocType).

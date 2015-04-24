@@ -264,6 +264,10 @@ ps_op :-
     debug(ex1, 'ScrollID ~w', [ScrollID]),
     catch(Ps.scroll(ScrollID, ScrollReply), _, true),
     debug(ex1, 'ScrollReply ~w', ScrollReply),
+    catch(Ps.clear_scroll(ScrollID, _, ClearScrollReply1), _, true),
+    debug(ex1, 'ClearScrollReply1 ~w', ClearScrollReply1),
+    catch(Ps.clear_scroll('', _, ClearScrollReply2), _, true),
+    debug(ex1, 'ClearScrollReply2 ~w', ClearScrollReply2),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
