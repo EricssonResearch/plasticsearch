@@ -35,7 +35,9 @@
     clear_scroll/4,     % +Ps, ID, +Body, -Reply
     clear_scroll/5,     % +Ps, ID, +Params, +Body, -Reply
     delete/5,           % +Ps, +Index, +DocType, +ID, -Reply
-    delete/6            % +Ps, +Index, +DocType, +ID, +Params, -Reply
+    delete/6,           % +Ps, +Index, +DocType, +ID, +Params, -Reply
+    count/5,            % +Ps, +Index, +DocType, +Body, -Reply
+    count/6             % +Ps, +Index, +DocType, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -408,6 +410,23 @@ delete(Ps, Index, DocType, ID, Params, Reply) :-
     forall(member(Value-Name, [Index-index, DocType-doc_type, ID-id]), non_empty(Value, Name)),
     make_context([Index, DocType, ID], Context),
     perform_request(Ps, delete, Context, Params, _, Reply).
+
+%% count(+Ps, +Index, +DocType, +Body, -Reply) is semidet.
+%% count(+Ps, +Index, +DocType, +Params, +Body, -Reply) is semidet.
+%
+% Execute a query and get the number of matches for that query.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-count.html).
+
+count(Ps, Index, DocType, Body, Reply) :-
+    count(Ps, Index, DocType, _{}, Body, Reply).
+
+count(Ps, Index, DocType, Params, Body, Reply) :-
+    (   Index = '', DocType \= ''
+    ->  Index1 = '_all'
+    ;   Index1 = Index
+    ),
+    make_context([Index1, DocType, '_count'], Context),
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
 
 fix_doc_type('', '_all') :- !.
 fix_doc_type(DocType, DocType).

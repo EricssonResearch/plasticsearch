@@ -270,6 +270,8 @@ ps_op :-
     debug(ex1, 'ClearScrollReply2 ~w', ClearScrollReply2),
     catch(Ps.delete(es_test, tweet, '2', DeleteDocReply), _, true),
     debug(ex1, 'DeleteDocReply ~w', DeleteDocReply),
+    catch(Ps.count(es_test, tweet, _{q:'user:kimchy'}, _, CountReply), _, true),
+    debug(ex1, 'CountReply ~w', CountReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
