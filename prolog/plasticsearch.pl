@@ -33,7 +33,9 @@
     scroll/3,           % +Ps, ID, -Reply
     scroll/4,           % +Ps, ID, +Params, -Reply
     clear_scroll/4,     % +Ps, ID, +Body, -Reply
-    clear_scroll/5      % +Ps, ID, +Params, +Body, -Reply
+    clear_scroll/5,     % +Ps, ID, +Params, +Body, -Reply
+    delete/5,           % +Ps, +Index, +DocType, +ID, -Reply
+    delete/6            % +Ps, +Index, +DocType, +ID, +Params, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -392,6 +394,20 @@ clear_scroll(Ps, ID, Params, Body, Reply) :-
     ),
     make_context(['_search', 'scroll', ID1], Context),
     perform_request(Ps, delete, Context, Params, Body, _, Reply).
+
+%% delete(+Ps, +Index, +DocType, +ID, -Reply) is semidet.
+%% delete(+Ps, +Index, +DocType, +ID, +Params, -Reply) is semidet.
+%
+% Delete a typed JSON document from a specific index based on its id.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete.html).
+
+delete(Ps, Index, DocType, ID, Reply) :-
+    delete(Ps, Index, DocType, ID, _{}, Reply).
+
+delete(Ps, Index, DocType, ID, Params, Reply) :-
+    forall(member(Value-Name, [Index-index, DocType-doc_type, ID-id]), non_empty(Value, Name)),
+    make_context([Index, DocType, ID], Context),
+    perform_request(Ps, delete, Context, Params, _, Reply).
 
 fix_doc_type('', '_all') :- !.
 fix_doc_type(DocType, DocType).
