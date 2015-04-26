@@ -8,7 +8,7 @@ index_op :-
     plasticsearch(Ps, ['http://192.121.150.101:8200', 'http://192.121.150.101:9200'],
         [dead_timeout(1), retry_on_status([502, 503, 504])]),
     debug(ex1, 'Plasticsearch ~w', [Ps]),
-    catch(Ps.indices.create(es_test,
+    catch(Ps.indices.create(es_test, _{refresh:true},
         _{settings: _{index: _{'mapping.allow_type_wrapper': true}}},
         CreateReply), _, true),
     debug(ex1, 'Create ~w', CreateReply),
@@ -241,11 +241,10 @@ ps_op :-
               _{'_index':es_test, '_type':tweet, '_id':'1'}]
     }, MGetReply), _, true),
     debug(ex1, 'MGetReply ~w', MGetReply),
-    catch(Ps.update(es_test, tweet, '2', _{
+    catch(Ps.update(es_test, tweet, '2', _{refresh:true}, _{
         doc:_{new_field:new_value}
     }, UpdateIndexReply), _, true),
     debug(ex1, 'UpdateIndexReply ~w', UpdateIndexReply),
-    sleep(1), % too slow of my workstation??
     catch(Ps.search(es_test, tweet, _{q:'user:kimchy', scroll:'2'}, _, SearchReply1), _, true),
     debug(ex1, 'SearchReply1 ~w', SearchReply1),
     catch(Ps.search(es_test, tweet, _{
@@ -272,13 +271,20 @@ ps_op :-
     debug(ex1, 'DeleteDocReply ~w', DeleteDocReply),
     catch(Ps.count(es_test, tweet, _{q:'user:kimchy'}, _, CountReply), _, true),
     debug(ex1, 'CountReply ~w', CountReply),
-    catch(Ps.bulk('', '', [
-        _{index:_{'_index':es_test, '_type':tweet, '_id':'1'}},
-        _{message:'it works!'},
-        _{index:_{'_index':es_test, '_type':tweet, '_id':'2'}},
-        _{message:'it works!'}
+    catch(Ps.bulk('', '', _{refresh:true}, [
+        _{update:_{'_index':es_test, '_type':tweet, '_id':'1'}},
+        _{doc:_{message:'it works!'}},
+        _{update:_{'_index':es_test, '_type':tweet, '_id':'2'}},
+        _{doc:_{message:'it works!'}}
     ], BulkReply), _, true),
     debug(ex1, 'BulkReply ~w', BulkReply),
+    catch(Ps.msearch('', '', [
+        _{index:es_test},
+        _{query:_{match_all:_{}}, from:0, size:10},
+        _{index:es_test, search_type:count},
+        _{query:_{match_all:_{}}}
+    ], MSearchReply), _, true),
+    debug(ex1, 'MSearchReply ~w', MSearchReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

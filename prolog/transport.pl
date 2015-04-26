@@ -48,10 +48,12 @@ perform_request(Ps, delete, Context, Params, Body, Status, Reply) :- !,
 
 perform_request(Ps, post, Context, Params, Body, Status, Reply) :- !,
     wrap_body(Body, WrappedBody),
+    debug(transport, 'POST body ~w', [WrappedBody]),
     http_operation_with_retry(Ps, Context, Params, http_post(WrappedBody), Status, Reply).
 
 perform_request(Ps, put, Context, Params, Body, Status, Reply) :- !,
     wrap_body(Body, WrappedBody),
+    debug(transport, 'PUT body ~w', [WrappedBody]),
     http_operation_with_retry(Ps, Context, Params, http_put(WrappedBody), Status, Reply).
 
 http_head(URL, _, Options) :-

@@ -39,7 +39,9 @@
     count/5,            % +Ps, +Index, +DocType, +Body, -Reply
     count/6,            % +Ps, +Index, +DocType, +Params, +Body, -Reply
     bulk/5,             % +Ps, +Index, +DocType, +Body, -Reply
-    bulk/6              % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    bulk/6,             % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    msearch/5,          % +Ps, +Index, +DocType, +Body, -Reply
+    msearch/6           % +Ps, +Index, +DocType, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -445,6 +447,21 @@ bulk(Ps, Index, DocType, Params, Body, Reply) :-
     make_context([Index, DocType, '_bulk'], Context),
     bulk_body(Body, BulkBody),
     perform_request(Ps, post, Context, Params, BulkBody, _, Reply).
+
+%% msearch(+Ps, +Index, +DocType, +Body, -Reply) is semidet.
+%% msearch(+Ps, +Index, +DocType, +Params, +Body, -Reply) is semidet.
+%
+% Execute several search requests within the same API.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-multi-search.html).
+
+msearch(Ps, Index, DocType, Body, Reply) :-
+    msearch(Ps, Index, DocType, _{}, Body, Reply).
+
+msearch(Ps, Index, DocType, Params, Body, Reply) :-
+    non_empty(Body, body),
+    make_context([Index, DocType, '_msearch'], Context),
+    bulk_body(Body, BulkBody),
+    perform_request(Ps, get, Context, Params, BulkBody, _, Reply).
 
 bulk_body(Body, BulkBody) :-
     atom(Body), !,
