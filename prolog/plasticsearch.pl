@@ -41,7 +41,9 @@
     bulk/5,             % +Ps, +Index, +DocType, +Body, -Reply
     bulk/6,             % +Ps, +Index, +DocType, +Params, +Body, -Reply
     msearch/5,          % +Ps, +Index, +DocType, +Body, -Reply
-    msearch/6           % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    msearch/6,          % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    delete_by_query/5,  % +Ps, +Index, +DocType, +Body, -Reply
+    delete_by_query/6   % +Ps, +Index, +DocType, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -242,9 +244,8 @@ exists(Ps, Index, DocType, ID) :-
     exists(Ps, Index, DocType, ID, _{}).
 
 exists(Ps, Index, DocType, ID, Params) :-
-    fix_doc_type(DocType, FixedDocType),
-    forall(member(Value-Name, [Index-index, FixedDocType-doc_type, ID-id]), non_empty(Value, Name)),
-    make_context([Index, FixedDocType, ID], Context),
+    forall(member(Value-Name, [Index-index, DocType-doc_type, ID-id]), non_empty(Value, Name)),
+    make_context([Index, DocType, ID], Context),
     (   catch(perform_request(Ps, head, Context, Params, _, _), E, true)
     ->  (   var(E)
         ->  true
@@ -262,9 +263,8 @@ get(Ps, Index, DocType, ID, Reply) :-
     get(Ps, Index, DocType, ID, _{}, Reply).
 
 get(Ps, Index, DocType, ID, Params, Reply) :-
-    fix_doc_type(DocType, FixedDocType),
-    forall(member(Value-Name, [Index-index, FixedDocType-doc_type, ID-id]), non_empty(Value, Name)),
-    make_context([Index, FixedDocType, ID], Context),
+    forall(member(Value-Name, [Index-index, DocType-doc_type, ID-id]), non_empty(Value, Name)),
+    make_context([Index, DocType, ID], Context),
     perform_request(Ps, get, Context, Params, _, Reply).
 
 %% get_source(+Ps, +Index, +DocType, +ID, -Reply) is semidet.
@@ -277,9 +277,8 @@ get_source(Ps, Index, DocType, ID, Reply) :-
     get_source(Ps, Index, DocType, ID, _{}, Reply).
 
 get_source(Ps, Index, DocType, ID, Params, Reply) :-
-    fix_doc_type(DocType, FixedDocType),
-    forall(member(Value-Name, [Index-index, FixedDocType-doc_type, ID-id]), non_empty(Value, Name)),
-    make_context([Index, FixedDocType, ID, '_source'], Context),
+    forall(member(Value-Name, [Index-index, DocType-doc_type, ID-id]), non_empty(Value, Name)),
+    make_context([Index, DocType, ID, '_source'], Context),
     perform_request(Ps, get, Context, Params, _, Reply).
 
 %% mget(+Ps, +Index, +DocType, -Reply) is semidet.
@@ -463,6 +462,20 @@ msearch(Ps, Index, DocType, Params, Body, Reply) :-
     bulk_body(Body, BulkBody),
     perform_request(Ps, get, Context, Params, BulkBody, _, Reply).
 
+%% delete_by_query(+Ps, +Index, +DocType, +Body, -Reply) is semidet.
+%% delete_by_query(+Ps, +Index, +DocType, +Params, +Body, -Reply) is semidet.
+%
+% Delete documents from one or more indices and one or more types based on a query.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html).
+
+delete_by_query(Ps, Index, DocType, Body, Reply) :-
+    delete_by_query(Ps, Index, DocType, _{}, Body, Reply).
+
+delete_by_query(Ps, Index, DocType, Params, Body, Reply) :-
+    non_empty(Index, index),
+    make_context([Index, DocType, '_query'], Context),
+    perform_request(Ps, delete, Context, Params, Body, _, Reply).
+
 bulk_body(Body, BulkBody) :-
     atom(Body), !,
     (   sub_atom(Body, _, 1, 0, '\n')
@@ -479,6 +492,3 @@ bulk_body([H|T], BulkBody) :- !,
     bulk_body(T, BulkBody0),
     bulk_body(H, BulkBody1),
     atomic_list_concat([BulkBody1, BulkBody0], '\n', BulkBody).
-
-fix_doc_type('', '_all') :- !.
-fix_doc_type(DocType, DocType).

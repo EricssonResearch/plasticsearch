@@ -7,7 +7,7 @@
 index_op :-
     plasticsearch(Ps, ['http://192.121.150.101:8200', 'http://192.121.150.101:9200'],
         [dead_timeout(1), retry_on_status([502, 503, 504])]),
-    debug(ex1, 'Plasticsearch ~w', [Ps]),
+    debug(ex1, 'Plasticsearch ~w', Ps),
     catch(Ps.indices.create(es_test, _{refresh:true},
         _{settings: _{index: _{'mapping.allow_type_wrapper': true}}},
         CreateReply), _, true),
@@ -147,7 +147,7 @@ index_op :-
 cluster_op :-
     plasticsearch(Ps, ['http://192.121.150.101:8200', 'http://192.121.150.101:9200'],
         [dead_timeout(1), retry_on_status([502, 503, 504])]),
-    debug(ex1, 'Plasticsearch ~w', [Ps]),
+    debug(ex1, 'Plasticsearch ~w', Ps),
     catch(Ps.indices.create(es_test,
         _{settings: _{index: _{'mapping.allow_type_wrapper': true}}},
         CreateReply), _, true),
@@ -227,12 +227,12 @@ ps_op :-
         tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
     }, IndexReply2), _, true),
     debug(ex1, 'IndexReply2 ~w', IndexReply2),
-    Ps.exists(es_test, '', '1'),
+    Ps.exists(es_test, '_all', '1'),
     Ps.exists(es_test, tweet, '1'),
     \+ Ps.exists(es_test, tweet, '3'),
     catch(Ps.get(es_test, tweet, '2', GetReply1), _, true),
     debug(ex1, 'GetReply1 ~w', GetReply1),
-    catch(Ps.get(es_test, '', '2', GetReply2), _, true),
+    catch(Ps.get(es_test, '_all', '2', GetReply2), _, true),
     debug(ex1, 'GetReply2 ~w', GetReply2),
     catch(Ps.get_source(es_test, tweet, '2', GetSourceReply), _, true),
     debug(ex1, 'GetSourceReply ~w', GetSourceReply),
@@ -260,7 +260,7 @@ ps_op :-
     }, ExplainReply), _, true),
     debug(ex1, 'ExplainReply ~w', ExplainReply),
     get_dict('_scroll_id', SearchReply1, ScrollID),
-    debug(ex1, 'ScrollID ~w', [ScrollID]),
+    debug(ex1, 'ScrollID ~w', ScrollID),
     catch(Ps.scroll(ScrollID, ScrollReply), _, true),
     debug(ex1, 'ScrollReply ~w', ScrollReply),
     catch(Ps.clear_scroll(ScrollID, _, ClearScrollReply1), _, true),
@@ -285,6 +285,10 @@ ps_op :-
         _{query:_{match_all:_{}}}
     ], MSearchReply), _, true),
     debug(ex1, 'MSearchReply ~w', MSearchReply),
+    catch(Ps.delete_by_query(es_test, tweet,
+        _{query:_{term:_{user:kimchy}}},
+        DeleteByQueryReply), _, true),
+    debug(ex1, 'DeleteByQueryReply ~w', DeleteByQueryReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

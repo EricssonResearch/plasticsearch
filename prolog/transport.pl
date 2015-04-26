@@ -26,21 +26,26 @@
 % Perform actual HTTP request. For GET and DELETE methods, body is not supported.
 
 perform_request(Ps, get, Context, Params, Status, Reply) :- !,
+    debug(transport, 'GET ~w', [Context]),
     http_operation_with_retry(Ps, Context, Params, http_get, Status, Reply).
 
 perform_request(Ps, delete, Context, Params, Status, Reply) :- !,
+    debug(transport, 'DELETE ~w', [Context]),
     http_operation_with_retry(Ps, Context, Params, http_delete, Status, Reply).
 
 perform_request(Ps, head, Context, Params, Status, Reply) :- !,
+    debug(transport, 'HEAD ~w', [Context]),
     http_operation_with_retry(Ps, Context, Params, http_head, Status, Reply).
 
 perform_request(Ps, get, Context, Params, Body, Status, Reply) :- !,
+    debug(transport, 'GET context ~w body ~w', [Context, Body]),
     (   nonvar(Body)
     ->  perform_request(Ps, post, Context, Params, Body, Status, Reply)
     ;   perform_request(Ps, get, Context, Params, Status, Reply)
     ).
 
 perform_request(Ps, delete, Context, Params, Body, Status, Reply) :- !,
+    debug(transport, 'DELETE context ~w body ~w', [Context, Body]),
     (   nonvar(Body)
     ->  perform_request(Ps, post, Context, Params, Body, Status, Reply)
     ;   perform_request(Ps, delete, Context, Params, Status, Reply)
@@ -48,12 +53,12 @@ perform_request(Ps, delete, Context, Params, Body, Status, Reply) :- !,
 
 perform_request(Ps, post, Context, Params, Body, Status, Reply) :- !,
     wrap_body(Body, WrappedBody),
-    debug(transport, 'POST body ~w', [WrappedBody]),
+    debug(transport, 'POST context ~w body ~w', [Context, WrappedBody]),
     http_operation_with_retry(Ps, Context, Params, http_post(WrappedBody), Status, Reply).
 
 perform_request(Ps, put, Context, Params, Body, Status, Reply) :- !,
     wrap_body(Body, WrappedBody),
-    debug(transport, 'PUT body ~w', [WrappedBody]),
+    debug(transport, 'PUT context ~w body ~w', [Context, WrappedBody]),
     http_operation_with_retry(Ps, Context, Params, http_put(WrappedBody), Status, Reply).
 
 http_head(URL, _, Options) :-
