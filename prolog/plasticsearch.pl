@@ -37,7 +37,9 @@
     delete/5,           % +Ps, +Index, +DocType, +ID, -Reply
     delete/6,           % +Ps, +Index, +DocType, +ID, +Params, -Reply
     count/5,            % +Ps, +Index, +DocType, +Body, -Reply
-    count/6             % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    count/6,            % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    bulk/5,             % +Ps, +Index, +DocType, +Body, -Reply
+    bulk/6              % +Ps, +Index, +DocType, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -52,6 +54,7 @@ This is basically a Prolog version of
 
 :- use_module(library(uuid)).
 :- use_module(library(uri)).
+:- use_module(library(http/json)).
 
 :- use_module(registry).
 
@@ -427,6 +430,38 @@ count(Ps, Index, DocType, Params, Body, Reply) :-
     ),
     make_context([Index1, DocType, '_count'], Context),
     perform_request(Ps, get, Context, Params, Body, _, Reply).
+
+%% bulk(+Ps, +Index, +DocType, +Body, -Reply) is semidet.
+%% bulk(+Ps, +Index, +DocType, +Params, +Body, -Reply) is semidet.
+%
+% Perform many index/delete operations in a single API call.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html).
+
+bulk(Ps, Index, DocType, Body, Reply) :-
+    bulk(Ps, Index, DocType, _{}, Body, Reply).
+
+bulk(Ps, Index, DocType, Params, Body, Reply) :-
+    non_empty(Body, body),
+    make_context([Index, DocType, '_bulk'], Context),
+    bulk_body(Body, BulkBody),
+    perform_request(Ps, post, Context, Params, BulkBody, _, Reply).
+
+bulk_body(Body, BulkBody) :-
+    atom(Body), !,
+    (   sub_atom(Body, _, 1, 0, '\n')
+    ->  BulkBody = Body
+    ;   atomic_concat(Body, '\n', BulkBody)
+    ).
+
+bulk_body(Body, BulkBody) :-
+    is_dict(Body), !,
+    atom_json_dict(BulkBody, Body, [as(atom)]).
+
+bulk_body([], '') :- !.
+bulk_body([H|T], BulkBody) :- !,
+    bulk_body(T, BulkBody0),
+    bulk_body(H, BulkBody1),
+    atomic_list_concat([BulkBody1, BulkBody0], '\n', BulkBody).
 
 fix_doc_type('', '_all') :- !.
 fix_doc_type(DocType, DocType).

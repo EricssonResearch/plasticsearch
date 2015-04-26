@@ -272,6 +272,13 @@ ps_op :-
     debug(ex1, 'DeleteDocReply ~w', DeleteDocReply),
     catch(Ps.count(es_test, tweet, _{q:'user:kimchy'}, _, CountReply), _, true),
     debug(ex1, 'CountReply ~w', CountReply),
+    catch(Ps.bulk('', '', [
+        _{index:_{'_index':es_test, '_type':tweet, '_id':'1'}},
+        _{message:'it works!'},
+        _{index:_{'_index':es_test, '_type':tweet, '_id':'2'}},
+        _{message:'it works!'}
+    ], BulkReply), _, true),
+    debug(ex1, 'BulkReply ~w', BulkReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
