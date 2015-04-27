@@ -45,7 +45,13 @@
     delete_by_query/5,  % +Ps, +Index, +DocType, +Body, -Reply
     delete_by_query/6,  % +Ps, +Index, +DocType, +Params, +Body, -Reply
     suggest/4,          % +Ps, +Index, +Body, -Reply
-    suggest/5           % +Ps, +Index, +Params, +Body, -Reply
+    suggest/5,          % +Ps, +Index, +Params, +Body, -Reply
+    percolate/6,        % +Ps, +Index, +DocType, +ID, +Body, -Reply
+    percolate/7,        % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
+    mpercolate/5,       % +Ps, +Index, +DocType, +Body, -Reply
+    mpercolate/6,       % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    count_percolate/6,  % +Ps, +Index, +DocType, +ID, +Body, -Reply
+    count_percolate/7   % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -492,6 +498,55 @@ suggest(Ps, Index, Params, Body, Reply) :-
     non_empty(Body, body),
     make_context([Index, '_suggest'], Context),
     perform_request(Ps, post, Context, Params, Body, _, Reply).
+
+%% percolate(+Ps, +Index, +DocType, +ID, +Body, -Reply) is semidet.
+%% percolate(+Ps, +Index, +DocType, +ID, +Params, +Body, -Reply) is semidet.
+%
+% The percolator allows to register queries against an index, and then
+% send percolate requests which include a doc, and getting back the
+% queries that match on that doc out of the set of registered queries.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-percolate.html).
+
+percolate(Ps, Index, DocType, ID, Body, Reply) :-
+    percolate(Ps, Index, DocType, ID, _{}, Body, Reply).
+
+percolate(Ps, Index, DocType, ID, Params, Body, Reply) :-
+    forall(member(Value-Name, [Index-index, DocType-doc_type]), non_empty(Value, Name)),
+    make_context([Index, DocType, ID, '_percolate'], Context),
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
+
+%% mpercolate(+Ps, +Index, +DocType, +Body, -Reply) is semidet.
+%% mpercolate(+Ps, +Index, +DocType, +Params, +Body, -Reply) is semidet.
+%
+% The percolator allows to register queries against an index, and then
+% send percolate requests which include a doc, and getting back the
+% queries that match on that doc out of the set of registered queries.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-percolate.html).
+
+mpercolate(Ps, Index, DocType, Body, Reply) :-
+    mpercolate(Ps, Index, DocType, _{}, Body, Reply).
+
+mpercolate(Ps, Index, DocType, Params, Body, Reply) :-
+    non_empty(Body, body),
+    make_context([Index, DocType, '_mpercolate'], Context),
+    bulk_body(Body, BulkBody),
+    perform_request(Ps, get, Context, Params, BulkBody, _, Reply).
+
+%% count_percolate(+Ps, +Index, +DocType, +ID, +Body, -Reply) is semidet.
+%% count_percolate(+Ps, +Index, +DocType, +ID, +Params, +Body, -Reply) is semidet.
+%
+% The percolator allows to register queries against an index, and then
+% send percolate requests which include a doc, and getting back the
+% queries that match on that doc out of the set of registered queries.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-percolate.html).
+
+count_percolate(Ps, Index, DocType, ID, Body, Reply) :-
+    count_percolate(Ps, Index, DocType, ID, _{}, Body, Reply).
+
+count_percolate(Ps, Index, DocType, ID, Params, Body, Reply) :-
+    forall(member(Value-Name, [Index-index, DocType-doc_type]), non_empty(Value, Name)),
+    make_context([Index, DocType, ID, '_percolate', count], Context),
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
 
 bulk_body(Body, BulkBody) :-
     atom(Body), !,

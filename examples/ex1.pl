@@ -207,23 +207,23 @@ ps_op :-
         CreateReply), _, true),
     debug(ex1, 'Create ~w', CreateReply),
     get_current_time_as_atom(Time1),
-    catch(Ps.create(es_test, tweet, '', _{
+    catch(Ps.create(es_test, tweet, '', _{refresh:true}, _{
         tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
     }, CreateIndexReply1), _, true),
     debug(ex1, 'CreateIndexReply1 ~w', CreateIndexReply1),
-    catch(Ps.create(es_test, tweet, '1', _{
+    catch(Ps.create(es_test, tweet, '1', _{refresh:true}, _{
         tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
     }, CreateIndexReply2), _, true),
     debug(ex1, 'CreateIndexReply2 ~w', CreateIndexReply2),
-    catch(Ps.create(es_test, tweet, '1', _{
+    catch(Ps.create(es_test, tweet, '1', _{refresh:true}, _{
         tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
     }, CreateIndexReply3), _, true),
     debug(ex1, 'CreateIndexReply3 ~w', CreateIndexReply3),
-    catch(Ps.index(es_test, tweet, '', _{
+    catch(Ps.index(es_test, tweet, '', _{refresh:true}, _{
         tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
     }, IndexReply1), _, true),
     debug(ex1, 'IndexReply1 ~w', IndexReply1),
-    catch(Ps.index(es_test, tweet, '2', _{
+    catch(Ps.index(es_test, tweet, '2', _{refresh:true}, _{
         tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
     }, IndexReply2), _, true),
     debug(ex1, 'IndexReply2 ~w', IndexReply2),
@@ -272,18 +272,18 @@ ps_op :-
     catch(Ps.count(es_test, tweet, _{q:'user:kimchy'}, _, CountReply), _, true),
     debug(ex1, 'CountReply ~w', CountReply),
     catch(Ps.bulk('', '', _{refresh:true}, [
-        _{update:_{'_index':es_test, '_type':tweet, '_id':'1'}},
-        _{doc:_{message:'it works!'}},
-        _{update:_{'_index':es_test, '_type':tweet, '_id':'2'}},
-        _{doc:_{message:'it works!'}}
-    ], BulkReply), _, true),
+            _{update:_{'_index':es_test, '_type':tweet, '_id':'1'}},
+            _{doc:_{message:'it works!'}},
+            _{update:_{'_index':es_test, '_type':tweet, '_id':'2'}},
+            _{doc:_{message:'it works!'}}
+        ], BulkReply), _, true),
     debug(ex1, 'BulkReply ~w', BulkReply),
     catch(Ps.msearch('', '', [
-        _{index:es_test},
-        _{query:_{match_all:_{}}, from:0, size:10},
-        _{index:es_test, search_type:count},
-        _{query:_{match_all:_{}}}
-    ], MSearchReply), _, true),
+            _{index:es_test},
+            _{query:_{match_all:_{}}, from:0, size:10},
+            _{index:es_test, search_type:count},
+            _{query:_{match_all:_{}}}
+        ], MSearchReply), _, true),
     debug(ex1, 'MSearchReply ~w', MSearchReply),
     catch(Ps.delete_by_query(es_test, tweet,
         _{query:_{term:_{user:kimchy}}},
@@ -293,6 +293,17 @@ ps_op :-
         _{'my-suggestion':_{text:'the amsterdma meetpu', term:_{field:body}}},
         SuggestReply), _, true),
     debug(ex1, 'SuggestReply ~w', SuggestReply),
+    catch(Ps.percolate(es_test, tweet, '',
+        _{doc:_{message:'A new bonsai tree in the office'}}, PercolateReply), _, true),
+    debug(ex1, 'PercolateReply ~w', PercolateReply),
+    catch(Ps.mpercolate('', '', [
+            _{percolate:_{index:es_test, type:tweet}},
+            _{doc:_{message:'A new bonsai tree in the office'}}
+        ], MPercolateReply), _, true),
+    debug(ex1, 'MPercolateReply ~w', MPercolateReply),
+    catch(Ps.count_percolate(es_test, tweet, '',
+        _{doc:_{message:'A new bonsai tree in the office'}}, CountPercolateReply), _, true),
+    debug(ex1, 'CountPercolateReply ~w', CountPercolateReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
