@@ -77,6 +77,10 @@ wrap_body(Body, WrappedBody) :-
     once((string(Body); atom(Body))), !,
     WrappedBody = codes(Body).
 
+wrap_body(Body, WrappedBody) :-
+    var(Body), !,
+    WrappedBody = codes('').
+
 http_operation_with_retry(Ps, Context, Params, Operation, Status, Reply) :-
     options(Ps, Options),
     memberchk(retry_on_status(RetryOnStatus), Options),

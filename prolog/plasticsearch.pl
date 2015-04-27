@@ -59,7 +59,11 @@
     termvector/6,       % +Ps, +Index, +DocType, +ID, +Body, -Reply
     termvector/7,       % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
     mtermvectors/5,     % +Ps, +Index, +DocType, +Body, -Reply
-    mtermvectors/6      % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    mtermvectors/6,     % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    benchmark/5,        % +Ps, +Index, +DocType, +Body, -Reply
+    benchmark/6,        % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    abort_benchmark/3,  % +Ps, +Name, -Reply
+    abort_benchmark/4   % +Ps, +Name, +Params, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -619,6 +623,33 @@ mtermvectors(Ps, Index, DocType, Body, Reply) :-
 mtermvectors(Ps, Index, DocType, Params, Body, Reply) :-
     make_context([Index, DocType, '_mtermvectors'], Context),
     perform_request(Ps, get, Context, Params, Body, _, Reply).
+
+%% benchmark(+Ps, +Index, +DocType, +Body, -Reply) is semidet.
+%% benchmark(+Ps, +Index, +DocType, +Params, +Body, -Reply) is semidet.
+%
+% The benchmark API provides a standard mechanism for submitting queries
+% and measuring their performance relative to one another.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/search-benchmark.html).
+
+benchmark(Ps, Index, DocType, Body, Reply) :-
+    benchmark(Ps, Index, DocType, _{}, Body, Reply).
+
+benchmark(Ps, Index, DocType, Params, Body, Reply) :-
+    make_context([Index, DocType, '_bench'], Context),
+    perform_request(Ps, put, Context, Params, Body, _, Reply).
+
+%% abort_benchmark(+Ps, +Name, -Reply) is semidet.
+%% abort_benchmark(+Ps, +Name, +Params, -Reply) is semidet.
+%
+% Aborts a running benchmark.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/search-benchmark.html).
+
+abort_benchmark(Ps, Name, Reply) :-
+    abort_benchmark(Ps, Name, _{}, Reply).
+
+abort_benchmark(Ps, Name, Params, Reply) :-
+    make_context(['_bench', abort, Name], Context),
+    perform_request(Ps, post, Context, Params, _, _, Reply).
 
 bulk_body(Body, BulkBody) :-
     atom(Body), !,
