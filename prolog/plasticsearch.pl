@@ -51,7 +51,15 @@
     mpercolate/5,       % +Ps, +Index, +DocType, +Body, -Reply
     mpercolate/6,       % +Ps, +Index, +DocType, +Params, +Body, -Reply
     count_percolate/6,  % +Ps, +Index, +DocType, +ID, +Body, -Reply
-    count_percolate/7   % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
+    count_percolate/7,  % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
+    mlt/6,              % +Ps, +Index, +DocType, +ID, +Body, -Reply
+    mlt/7,              % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
+    termvectors/6,      % +Ps, +Index, +DocType, +ID, +Body, -Reply
+    termvectors/7,      % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
+    termvector/6,       % +Ps, +Index, +DocType, +ID, +Body, -Reply
+    termvector/7,       % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
+    mtermvectors/5,     % +Ps, +Index, +DocType, +Body, -Reply
+    mtermvectors/6      % +Ps, +Index, +DocType, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -546,6 +554,70 @@ count_percolate(Ps, Index, DocType, ID, Body, Reply) :-
 count_percolate(Ps, Index, DocType, ID, Params, Body, Reply) :-
     forall(member(Value-Name, [Index-index, DocType-doc_type]), non_empty(Value, Name)),
     make_context([Index, DocType, ID, '_percolate', count], Context),
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
+
+%% mlt(+Ps, +Index, +DocType, +ID, +Body, -Reply) is semidet.
+%% mlt(+Ps, +Index, +DocType, +ID, +Params, +Body, -Reply) is semidet.
+%
+% Get documents that are "like" a specified document.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-more-like-this.html).
+
+mlt(Ps, Index, DocType, ID, Body, Reply) :-
+    mlt(Ps, Index, DocType, ID, _{}, Body, Reply).
+
+mlt(Ps, Index, DocType, ID, Params, Body, Reply) :-
+    forall(member(Value-Name, [Index-index, DocType-doc_type, ID-id]), non_empty(Value, Name)),
+    make_context([Index, DocType, ID, '_mlt'], Context),
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
+
+%% termvectors(+Ps, +Index, +DocType, +ID, +Body, -Reply) is semidet.
+%% termvectors(+Ps, +Index, +DocType, +ID, +Params, +Body, -Reply) is semidet.
+%
+% Returns information and statistics on terms in the fields of a
+% particular document. The document could be stored in the index or
+% artificially provided by the user (Added in 1.4). Note that for
+% documents stored in the index, this is a near realtime API as the term
+% vectors are not available until the next refresh.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-termvectors.html).
+
+termvectors(Ps, Index, DocType, ID, Body, Reply) :-
+    termvectors(Ps, Index, DocType, ID, _{}, Body, Reply).
+
+termvectors(Ps, Index, DocType, ID, Params, Body, Reply) :-
+    forall(member(Value-Name, [Index-index, DocType-doc_type, ID-id]), non_empty(Value, Name)),
+    make_context([Index, DocType, ID, '_termvectors'], Context),
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
+
+%% termvector(+Ps, +Index, +DocType, +ID, +Body, -Reply) is semidet.
+%% termvector(+Ps, +Index, +DocType, +ID, +Params, +Body, -Reply) is semidet.
+%
+% Returns information and statistics on terms in the fields of a
+% particular document. The document could be stored in the index or
+% artificially provided by the user (Added in 1.4). Note that for
+% documents stored in the index, this is a near realtime API as the term
+% vectors are not available until the next refresh.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-termvectors.html).
+
+termvector(Ps, Index, DocType, ID, Body, Reply) :-
+    termvector(Ps, Index, DocType, ID, _{}, Body, Reply).
+
+termvector(Ps, Index, DocType, ID, Params, Body, Reply) :-
+    forall(member(Value-Name, [Index-index, DocType-doc_type, ID-id]), non_empty(Value, Name)),
+    make_context([Index, DocType, ID, '_termvector'], Context),
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
+
+%% mtermvectors(+Ps, +Index, +DocType, +Body, -Reply) is semidet.
+%% mtermvectors(+Ps, +Index, +DocType, +Params, +Body, -Reply) is semidet.
+%
+% Multi termvectors API allows to get multiple termvectors based on an
+% index, type and id.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/docs-multi-termvectors.html).
+
+mtermvectors(Ps, Index, DocType, Body, Reply) :-
+    mtermvectors(Ps, Index, DocType, _{}, Body, Reply).
+
+mtermvectors(Ps, Index, DocType, Params, Body, Reply) :-
+    make_context([Index, DocType, '_mtermvectors'], Context),
     perform_request(Ps, get, Context, Params, Body, _, Reply).
 
 bulk_body(Body, BulkBody) :-

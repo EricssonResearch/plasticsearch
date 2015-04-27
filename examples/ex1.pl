@@ -208,7 +208,7 @@ ps_op :-
     debug(ex1, 'Create ~w', CreateReply),
     get_current_time_as_atom(Time1),
     catch(Ps.create(es_test, tweet, '', _{refresh:true}, _{
-        tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
+        tweet:_{user:kimchy1, post_date:Time1, message:'trying out Elasticsearch'}
     }, CreateIndexReply1), _, true),
     debug(ex1, 'CreateIndexReply1 ~w', CreateIndexReply1),
     catch(Ps.create(es_test, tweet, '1', _{refresh:true}, _{
@@ -220,16 +220,21 @@ ps_op :-
     }, CreateIndexReply3), _, true),
     debug(ex1, 'CreateIndexReply3 ~w', CreateIndexReply3),
     catch(Ps.index(es_test, tweet, '', _{refresh:true}, _{
-        tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
+        tweet:_{user:kimchy2, post_date:Time1, message:'trying out Elasticsearch'}
     }, IndexReply1), _, true),
     debug(ex1, 'IndexReply1 ~w', IndexReply1),
     catch(Ps.index(es_test, tweet, '2', _{refresh:true}, _{
         tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
     }, IndexReply2), _, true),
     debug(ex1, 'IndexReply2 ~w', IndexReply2),
+    catch(Ps.index(es_test, tweet, '3', _{refresh:true}, _{
+        tweet:_{user:someone, post_date:Time1, message:'trying out Elasticsearch'}
+    }, IndexReply3), _, true),
+    debug(ex1, 'IndexReply3 ~w', IndexReply3),
     Ps.exists(es_test, '_all', '1'),
     Ps.exists(es_test, tweet, '1'),
-    \+ Ps.exists(es_test, tweet, '3'),
+    Ps.exists(es_test, tweet, '2'),
+    \+ Ps.exists(es_test, tweet, '4'),
     catch(Ps.get(es_test, tweet, '2', GetReply1), _, true),
     debug(ex1, 'GetReply1 ~w', GetReply1),
     catch(Ps.get(es_test, '_all', '2', GetReply2), _, true),
@@ -304,6 +309,14 @@ ps_op :-
     catch(Ps.count_percolate(es_test, tweet, '',
         _{doc:_{message:'A new bonsai tree in the office'}}, CountPercolateReply), _, true),
     debug(ex1, 'CountPercolateReply ~w', CountPercolateReply),
+    catch(Ps.mlt(es_test, tweet, '3', _, MltReply), _, true),
+    debug(ex1, 'MltReply ~w', MltReply),
+    catch(Ps.termvector(es_test, tweet, '3', _, TermVectorReply), _, true),
+    debug(ex1, 'TermVectorReply ~w', TermVectorReply),
+    catch(Ps.mtermvectors('', '', _{
+            docs:[_{'_index':es_test, '_type':tweet, '_id':'3', term_statistics:true}]
+        }, MTermVectorsReply), _, true),
+    debug(ex1, 'MTermVectorsReply ~w', MTermVectorsReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
