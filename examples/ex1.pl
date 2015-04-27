@@ -290,10 +290,12 @@ ps_op :-
             _{query:_{match_all:_{}}}
         ], MSearchReply), _, true),
     debug(ex1, 'MSearchReply ~w', MSearchReply),
+    catch(Ps.delete_by_query(es_test, tweet, _{q:'user:kimchy'}, _, DeleteByQueryReply1), _, true),
+    debug(ex1, 'DeleteByQueryReply1 ~w', DeleteByQueryReply1),
     catch(Ps.delete_by_query(es_test, tweet,
         _{query:_{term:_{user:kimchy}}},
-        DeleteByQueryReply), _, true),
-    debug(ex1, 'DeleteByQueryReply ~w', DeleteByQueryReply),
+        DeleteByQueryReply2), _, true),
+    debug(ex1, 'DeleteByQueryReply2 ~w', DeleteByQueryReply2),
     catch(Ps.suggest(es_test,
         _{'my-suggestion':_{text:'the amsterdma meetpu', term:_{field:body}}},
         SuggestReply), _, true),
@@ -333,6 +335,12 @@ ps_op :-
     debug(ex1, 'DeleteTemplateReply1 ~w', DeleteTemplateReply1),
     catch(Ps.delete_template('', DeleteTemplateReply2), _, true), % doesn't work??
     debug(ex1, 'DeleteTemplateReply2 ~w', DeleteTemplateReply2),
+    catch(Ps.search_exists(es_test, tweet, _{q:'user:someone'}, _, SearchExistsReply1), _, true),
+    debug(ex1, 'SearchExistsReply1 ~w', SearchExistsReply1),
+    catch(Ps.search_exists(es_test, tweet, _{
+            query:_{term:_{user:kimchy}}
+        }, SearchExistsReply2), _, true),
+    debug(ex1, 'SearchExistsReply2 ~w', SearchExistsReply2),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

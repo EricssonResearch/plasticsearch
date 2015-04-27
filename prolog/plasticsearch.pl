@@ -77,7 +77,9 @@
     get_template/3,     % +Ps, +ID, -Reply
     get_template/4,     % +Ps, +ID, +Params, -Reply
     delete_template/3,  % +Ps, +ID, -Reply
-    delete_template/4   % +Ps, +ID, +Params, -Reply
+    delete_template/4,  % +Ps, +ID, +Params, -Reply
+    search_exists/5,    % +Ps, +Index, +DocType, +Body, -Reply
+    search_exists/6     % +Ps, +Index, +DocType, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -760,6 +762,20 @@ delete_template(Ps, ID, Reply) :-
 delete_template(Ps, ID, Params, Reply) :-
     make_context(['_search', template, ID], Context),
     perform_request(Ps, delete, Context, Params, _, Reply).
+
+%% search_exists(+Ps, +Index, +DocType, +Body, -Reply) is semidet.
+%% search_exists(+Ps, +Index, +DocType, +Params, +Body, -Reply) is semidet.
+%
+% The exists API allows to easily determine if any matching documents
+% exist for a provided query.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-exists.html).
+
+search_exists(Ps, Index, DocType, Body, Reply) :-
+    search_exists(Ps, Index, DocType, _{}, Body, Reply).
+
+search_exists(Ps, Index, DocType, Params, Body, Reply) :-
+    make_context([Index, DocType, '_search', exists], Context),
+    perform_request(Ps, get, Context, Params, Body, _, Reply).
 
 bulk_body(Body, BulkBody) :-
     atom(Body), !,

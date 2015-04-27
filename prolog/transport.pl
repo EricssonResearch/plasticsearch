@@ -47,9 +47,14 @@ perform_request(Ps, get, Context, Params, Body, Status, Reply) :- !,
 perform_request(Ps, delete, Context, Params, Body, Status, Reply) :- !,
     debug(transport, 'DELETE context ~w body ~w', [Context, Body]),
     (   nonvar(Body)
-    ->  perform_request(Ps, post, Context, Params, Body, Status, Reply)
+    ->  perform_request(Ps, delete_ex, Context, Params, Body, Status, Reply)
     ;   perform_request(Ps, delete, Context, Params, Status, Reply)
     ).
+
+perform_request(Ps, delete_ex, Context, Params, Body, Status, Reply) :- !,
+    wrap_body(Body, WrappedBody),
+    debug(transport, 'DELETE_EX context ~w body ~w', [Context, WrappedBody]),
+    http_operation_with_retry(Ps, Context, Params, http_delete_ex(WrappedBody), Status, Reply).
 
 perform_request(Ps, post, Context, Params, Body, Status, Reply) :- !,
     wrap_body(Body, WrappedBody),
@@ -61,13 +66,11 @@ perform_request(Ps, put, Context, Params, Body, Status, Reply) :- !,
     debug(transport, 'PUT context ~w body ~w', [Context, WrappedBody]),
     http_operation_with_retry(Ps, Context, Params, http_put(WrappedBody), Status, Reply).
 
-http_head(URL, _, Options) :-
-    uri_components(URL, uri_components(Scheme, Authority, Path, Search, Fragment)),
-    uri_authority_components(Authority, uri_authority(User, Password, Host, Port)),
-    uri_authority_components(Authority1, uri_authority(_, _, Host, Port)),
-    uri_components(URL1, uri_components(Scheme, Authority1, Path, Search, Fragment)),
-    http_open(URL1, Stream, [method(head),authorization(basic(User, Password))|Options]),
-    close(Stream).
+http_head(URL, Reply, Options) :-
+    http_get(URL, Reply, [method('HEAD')|Options]).
+
+http_delete_ex(URL, Data, Reply, Options) :-
+    http_post(URL, Data, Reply, [method('DELETE')|Options]).
     
 wrap_body(Body, WrappedBody) :-
     is_dict(Body), !,
