@@ -317,6 +317,12 @@ ps_op :-
             docs:[_{'_index':es_test, '_type':tweet, '_id':'3', term_statistics:true}]
         }, MTermVectorsReply), _, true),
     debug(ex1, 'MTermVectorsReply ~w', MTermVectorsReply),
+    catch(Ps.put_script(groovy, '1', _{script:'log(_score * 2) + my_modifier'}, PutScriptReply), _, true),
+    debug(ex1, 'PutScriptReply ~w', PutScriptReply),
+    catch(Ps.get_script(groovy, '1', GetScritpReply), _, true),
+    debug(ex1, 'GetScritpReply ~w', GetScritpReply),
+    catch(Ps.delete_script(groovy, '1', DeleteScritpReply), _, true),
+    debug(ex1, 'DeleteScritpReply ~w', DeleteScritpReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).

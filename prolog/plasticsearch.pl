@@ -65,7 +65,13 @@
     abort_benchmark/3,  % +Ps, +Name, -Reply
     abort_benchmark/4,  % +Ps, +Name, +Params, -Reply
     list_benchmark/4,   % +Ps, +Index, +DocType, -Reply
-    list_benchmark/5    % +Ps, +Index, +DocType, +Params, -Reply
+    list_benchmark/5,   % +Ps, +Index, +DocType, +Params, -Reply
+    put_script/5,       % +Ps, +Lang, +ID, +Body, -Reply
+    put_script/6,       % +Ps, +Lang, +ID, +Params, +Body, -Reply
+    get_script/4,       % +Ps, +Lang, +ID, -Reply
+    get_script/5,       % +Ps, +Lang, +ID, +Params, -Reply
+    delete_script/4,    % +Ps, +Lang, +ID, -Reply
+    delete_script/5     % +Ps, +Lang, +ID, +Params, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -665,6 +671,48 @@ list_benchmark(Ps, Index, DocType, Reply) :-
 list_benchmark(Ps, Index, DocType, Params, Reply) :-
     make_context([Index, DocType, '_bench'], Context),
     perform_request(Ps, get, Context, Params, _, Reply).
+
+%% put_script(+Ps, +Lang, +ID, +Body, -Reply) is semidet.
+%% put_script(+Ps, +Lang, +ID, +Params, +Body, -Reply) is semidet.
+%
+% Create a script in given language with specified ID.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting.html).
+
+put_script(Ps, Lang, ID, Body, Reply) :-
+    put_script(Ps, Lang, ID, _{}, Body, Reply).
+
+put_script(Ps, Lang, ID, Params, Body, Reply) :-
+    forall(member(Value-Name, [Lang-lang, ID-id, Body-body]), non_empty(Value, Name)),
+    make_context(['_scripts', Lang, ID], Context),
+    perform_request(Ps, put, Context, Params, Body, _, Reply).
+
+%% get_script(+Ps, +Lang, +ID, -Reply) is semidet.
+%% get_script(+Ps, +Lang, +ID, +Params, -Reply) is semidet.
+%
+% Retrieve a script from the API.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting.html).
+
+get_script(Ps, Lang, ID, Reply) :-
+    get_script(Ps, Lang, ID, _{}, Reply).
+
+get_script(Ps, Lang, ID, Params, Reply) :-
+    forall(member(Value-Name, [Lang-lang, ID-id]), non_empty(Value, Name)),
+    make_context(['_scripts', Lang, ID], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
+
+%% delete_script(+Ps, +Lang, +ID, -Reply) is semidet.
+%% delete_script(+Ps, +Lang, +ID, +Params, -Reply) is semidet.
+%
+% Retrieve a script from the API.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting.html).
+
+delete_script(Ps, Lang, ID, Reply) :-
+    delete_script(Ps, Lang, ID, _{}, Reply).
+
+delete_script(Ps, Lang, ID, Params, Reply) :-
+    forall(member(Value-Name, [Lang-lang, ID-id]), non_empty(Value, Name)),
+    make_context(['_scripts', Lang, ID], Context),
+    perform_request(Ps, delete, Context, Params, _, Reply).
 
 bulk_body(Body, BulkBody) :-
     atom(Body), !,
