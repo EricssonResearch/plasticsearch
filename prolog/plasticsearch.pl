@@ -71,7 +71,13 @@
     get_script/4,       % +Ps, +Lang, +ID, -Reply
     get_script/5,       % +Ps, +Lang, +ID, +Params, -Reply
     delete_script/4,    % +Ps, +Lang, +ID, -Reply
-    delete_script/5     % +Ps, +Lang, +ID, +Params, -Reply
+    delete_script/5,    % +Ps, +Lang, +ID, +Params, -Reply
+    put_template/4,     % +Ps, +ID, +Body, -Reply
+    put_template/5,     % +Ps, +ID, +Params, +Body, -Reply
+    get_template/3,     % +Ps, +ID, -Reply
+    get_template/4,     % +Ps, +ID, +Params, -Reply
+    delete_template/3,  % +Ps, +ID, -Reply
+    delete_template/4   % +Ps, +ID, +Params, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -703,7 +709,7 @@ get_script(Ps, Lang, ID, Params, Reply) :-
 %% delete_script(+Ps, +Lang, +ID, -Reply) is semidet.
 %% delete_script(+Ps, +Lang, +ID, +Params, -Reply) is semidet.
 %
-% Retrieve a script from the API.
+% Remove a stored script from elasticsearch.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting.html).
 
 delete_script(Ps, Lang, ID, Reply) :-
@@ -712,6 +718,47 @@ delete_script(Ps, Lang, ID, Reply) :-
 delete_script(Ps, Lang, ID, Params, Reply) :-
     forall(member(Value-Name, [Lang-lang, ID-id]), non_empty(Value, Name)),
     make_context(['_scripts', Lang, ID], Context),
+    perform_request(Ps, delete, Context, Params, _, Reply).
+
+%% put_template(+Ps, +ID, +Body, -Reply) is semidet.
+%% put_template(+Ps, +ID, +Params, +Body, -Reply) is semidet.
+%
+% Create a search template.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-template.html).
+
+put_template(Ps, ID, Body, Reply) :-
+    put_template(Ps, ID, _{}, Body, Reply).
+
+put_template(Ps, ID, Params, Body, Reply) :-
+    forall(member(Value-Name, [ID-id, Body-body]), non_empty(Value, Name)),
+    make_context(['_search', template, ID], Context),
+    perform_request(Ps, put, Context, Params, Body, _, Reply).
+
+%% get_template(+Ps, +ID, -Reply) is semidet.
+%% get_template(+Ps, +ID, +Params, -Reply) is semidet.
+%
+% Retrieve a search template.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-template.html).
+
+get_template(Ps, ID, Reply) :-
+    get_template(Ps, ID, _{}, Reply).
+
+get_template(Ps, ID, Params, Reply) :-
+    non_empty(ID, id),
+    make_context(['_search', template, ID], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
+
+%% delete_template(+Ps, +ID, -Reply) is semidet.
+%% delete_template(+Ps, +ID, +Params, -Reply) is semidet.
+%
+% Delete a search template.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-template.html).
+
+delete_template(Ps, ID, Reply) :-
+    delete_template(Ps, ID, _{}, Reply).
+
+delete_template(Ps, ID, Params, Reply) :-
+    make_context(['_search', template, ID], Context),
     perform_request(Ps, delete, Context, Params, _, Reply).
 
 bulk_body(Body, BulkBody) :-

@@ -323,6 +323,16 @@ ps_op :-
     debug(ex1, 'GetScritpReply ~w', GetScritpReply),
     catch(Ps.delete_script(groovy, '1', DeleteScritpReply), _, true),
     debug(ex1, 'DeleteScritpReply ~w', DeleteScritpReply),
+    catch(Ps.put_template('1', _{
+            template:_{query:_{match:_{title:'{{query_string}}'}}}
+        }, PutTemplateReply), _, true),
+    debug(ex1, 'PutTemplateReply ~w', PutTemplateReply),
+    catch(Ps.get_template('1', GetTemplateReply), _, true),
+    debug(ex1, 'GetTemplateReply ~w', GetTemplateReply),
+    catch(Ps.delete_template('1', DeleteTemplateReply1), _, true),
+    debug(ex1, 'DeleteTemplateReply1 ~w', DeleteTemplateReply1),
+    catch(Ps.delete_template('', DeleteTemplateReply2), _, true), % doesn't work??
+    debug(ex1, 'DeleteTemplateReply2 ~w', DeleteTemplateReply2),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
