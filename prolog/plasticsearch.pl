@@ -63,7 +63,9 @@
     benchmark/5,        % +Ps, +Index, +DocType, +Body, -Reply
     benchmark/6,        % +Ps, +Index, +DocType, +Params, +Body, -Reply
     abort_benchmark/3,  % +Ps, +Name, -Reply
-    abort_benchmark/4   % +Ps, +Name, +Params, -Reply
+    abort_benchmark/4,  % +Ps, +Name, +Params, -Reply
+    list_benchmark/4,   % +Ps, +Index, +DocType, -Reply
+    list_benchmark/5    % +Ps, +Index, +DocType, +Params, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -650,6 +652,19 @@ abort_benchmark(Ps, Name, Reply) :-
 abort_benchmark(Ps, Name, Params, Reply) :-
     make_context(['_bench', abort, Name], Context),
     perform_request(Ps, post, Context, Params, _, _, Reply).
+
+%% list_benchmark(+Ps, +Index, +DocType, -Reply) is semidet.
+%% list_benchmark(+Ps, +Index, +DocType, +Params, -Reply) is semidet.
+%
+% View the progress of long-running benchmarks.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/search-benchmark.html).
+
+list_benchmark(Ps, Index, DocType, Reply) :-
+    list_benchmark(Ps, Index, DocType, _{}, Reply).
+
+list_benchmark(Ps, Index, DocType, Params, Reply) :-
+    make_context([Index, DocType, '_bench'], Context),
+    perform_request(Ps, get, Context, Params, _, Reply).
 
 bulk_body(Body, BulkBody) :-
     atom(Body), !,
