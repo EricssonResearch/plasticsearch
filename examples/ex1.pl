@@ -209,28 +209,28 @@ ps_op :-
     debug(ex1, 'Create ~w', CreateReply),
     get_current_time_as_atom(Time1),
     catch(Ps.create(es_test, tweet, '', _{refresh:true}, _{
-        tweet:_{user:kimchy1, post_date:Time1, message:'trying out Elasticsearch'}
-    }, CreateIndexReply1), _, true),
+            tweet:_{user:kimchy1, post_date:Time1, message:'trying out Elasticsearch'}
+        }, CreateIndexReply1), _, true),
     debug(ex1, 'CreateIndexReply1 ~w', CreateIndexReply1),
     catch(Ps.create(es_test, tweet, '1', _{refresh:true}, _{
-        tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
-    }, CreateIndexReply2), _, true),
+            tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
+        }, CreateIndexReply2), _, true),
     debug(ex1, 'CreateIndexReply2 ~w', CreateIndexReply2),
     catch(Ps.create(es_test, tweet, '1', _{refresh:true}, _{
-        tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
-    }, CreateIndexReply3), _, true),
+            tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
+        }, CreateIndexReply3), _, true),
     debug(ex1, 'CreateIndexReply3 ~w', CreateIndexReply3),
     catch(Ps.index(es_test, tweet, '', _{refresh:true}, _{
-        tweet:_{user:kimchy2, post_date:Time1, message:'trying out Elasticsearch'}
-    }, IndexReply1), _, true),
+            tweet:_{user:kimchy2, post_date:Time1, message:'trying out Elasticsearch'}
+        }, IndexReply1), _, true),
     debug(ex1, 'IndexReply1 ~w', IndexReply1),
     catch(Ps.index(es_test, tweet, '2', _{refresh:true}, _{
-        tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
-    }, IndexReply2), _, true),
+            tweet:_{user:kimchy, post_date:Time1, message:'trying out Elasticsearch'}
+        }, IndexReply2), _, true),
     debug(ex1, 'IndexReply2 ~w', IndexReply2),
     catch(Ps.index(es_test, tweet, '3', _{refresh:true}, _{
-        tweet:_{user:someone, post_date:Time1, message:'trying out Elasticsearch'}
-    }, IndexReply3), _, true),
+            tweet:_{user:someone, post_date:Time1, message:'trying out Elasticsearch'}
+        }, IndexReply3), _, true),
     debug(ex1, 'IndexReply3 ~w', IndexReply3),
     Ps.exists(es_test, '_all', '1'),
     Ps.exists(es_test, tweet, '1'),
@@ -243,27 +243,27 @@ ps_op :-
     catch(Ps.get_source(es_test, tweet, '2', GetSourceReply), _, true),
     debug(ex1, 'GetSourceReply ~w', GetSourceReply),
     catch(Ps.mget(es_test, '', _{
-        docs:[_{'_index':es_test, '_type':tweet, '_id':'2'},
-              _{'_index':es_test, '_type':tweet, '_id':'1'}]
-    }, MGetReply), _, true),
+            docs:[_{'_index':es_test, '_type':tweet, '_id':'2'},
+                  _{'_index':es_test, '_type':tweet, '_id':'1'}]
+        }, MGetReply), _, true),
     debug(ex1, 'MGetReply ~w', MGetReply),
     catch(Ps.update(es_test, tweet, '2', _{refresh:true}, _{
-        doc:_{new_field:new_value}
-    }, UpdateIndexReply), _, true),
+            doc:_{new_field:new_value}
+        }, UpdateIndexReply), _, true),
     debug(ex1, 'UpdateIndexReply ~w', UpdateIndexReply),
     catch(Ps.search(es_test, tweet, _{q:'user:kimchy', scroll:'2'}, _, SearchReply1), _, true),
     debug(ex1, 'SearchReply1 ~w', SearchReply1),
     catch(Ps.search(es_test, tweet, _{
-        query:_{term:_{user:kimchy}}
-    }, SearchReply2), _, true),
+            query:_{term:_{user:kimchy}}
+        }, SearchReply2), _, true),
     debug(ex1, 'SearchReply2 ~w', SearchReply2),
     catch(Ps.search_shards(es_test, tweet, SearchShardsReply), _, true),
     debug(ex1, 'SearchShardsReply ~w', SearchShardsReply),
     catch(Ps.search_template('', '', _, SearchTemplateReply1), _, true),
     debug(ex1, 'SearchTemplateReply1 ~w', SearchTemplateReply1),
     catch(Ps.explain(es_test, tweet, '2', _{
-        query:_{term:_{user:kimchy}}
-    }, ExplainReply), _, true),
+            query:_{term:_{user:kimchy}}
+        }, ExplainReply), _, true),
     debug(ex1, 'ExplainReply ~w', ExplainReply),
     get_dict('_scroll_id', SearchReply1, ScrollID),
     debug(ex1, 'ScrollID ~w', ScrollID),
