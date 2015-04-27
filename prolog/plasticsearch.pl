@@ -43,7 +43,9 @@
     msearch/5,          % +Ps, +Index, +DocType, +Body, -Reply
     msearch/6,          % +Ps, +Index, +DocType, +Params, +Body, -Reply
     delete_by_query/5,  % +Ps, +Index, +DocType, +Body, -Reply
-    delete_by_query/6   % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    delete_by_query/6,  % +Ps, +Index, +DocType, +Params, +Body, -Reply
+    suggest/4,          % +Ps, +Index, +Body, -Reply
+    suggest/5           % +Ps, +Index, +Params, +Body, -Reply
 ]).
 
 /** <module> Elasticsearch Prolog APIs.
@@ -475,6 +477,21 @@ delete_by_query(Ps, Index, DocType, Params, Body, Reply) :-
     non_empty(Index, index),
     make_context([Index, DocType, '_query'], Context),
     perform_request(Ps, delete, Context, Params, Body, _, Reply).
+
+%% suggest(+Ps, +Index, +Body, -Reply) is semidet.
+%% suggest(+Ps, +Index, +Params, +Body, -Reply) is semidet.
+%
+% The suggest feature suggests similar looking terms based on a provided
+% text by using a suggester.
+% See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html).
+
+suggest(Ps, Index, Body, Reply) :-
+    suggest(Ps, Index, _{}, Body, Reply).
+
+suggest(Ps, Index, Params, Body, Reply) :-
+    non_empty(Body, body),
+    make_context([Index, '_suggest'], Context),
+    perform_request(Ps, post, Context, Params, Body, _, Reply).
 
 bulk_body(Body, BulkBody) :-
     atom(Body), !,

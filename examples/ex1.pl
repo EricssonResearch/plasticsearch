@@ -289,6 +289,10 @@ ps_op :-
         _{query:_{term:_{user:kimchy}}},
         DeleteByQueryReply), _, true),
     debug(ex1, 'DeleteByQueryReply ~w', DeleteByQueryReply),
+    catch(Ps.suggest(es_test,
+        _{'my-suggestion':_{text:'the amsterdma meetpu', term:_{field:body}}},
+        SuggestReply), _, true),
+    debug(ex1, 'SuggestReply ~w', SuggestReply),
     catch(Ps.indices.delete(es_test, DeleteReply), _, true),
     debug(ex1, 'Delete ~w', DeleteReply),
     destroy(Ps).
