@@ -24,8 +24,8 @@ Source code available and pull requests accepted
 
 To create an index and add a document:
 
-    :- use_module(library(sugar)).
-    :- use_module(library(plasticsearch)).
+    :- use_module(library(plasticsearch/sugar)).
+    :- use_module(library(plasticsearch/plasticsearch)).
 
     create :-
         plasticsearch(Ps, ['http://192.121.150.101:8200', 'http://192.121.150.101:9200'],
