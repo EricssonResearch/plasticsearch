@@ -1,5 +1,11 @@
 # plasticsearch
 
+Plasticsearch is an Elasticsearch Client implemented in Prolog.
+
+The implementation is based on Python Elasticsearch Client.
+Architecture, design, and modularization are kept the same as
+Python Elasticsearch Client in order to make it easier to use
+for developers who are familiar with Python Elasticsearch Client.
 
 ## Installation
 
@@ -12,7 +18,7 @@ Source code available and pull requests accepted
 
 @author Hongxin Liang <hongxin.liang@ericsson.com>
 
-@license TBD
+@license Apache License Version 2.0
 
 ## Examples
 
@@ -35,3 +41,19 @@ To create an index and add a document:
         destroy(Ps).
 
 For more examples, please check source code under `examples` directory.
+
+## License
+
+Copyright 2015 Ericsson
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.

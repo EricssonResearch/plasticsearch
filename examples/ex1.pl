@@ -1,7 +1,7 @@
 :- module(ex1, []).
 
-:- use_module(library(sugar)).
-:- use_module(library(plasticsearch)).
+:- use_module(library(plasticsearch/sugar)).
+:- use_module(library(plasticsearch/plasticsearch)).
 
 :- debug(ex1).
 
