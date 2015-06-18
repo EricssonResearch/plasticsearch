@@ -86,7 +86,7 @@ This is basically a Prolog version of
 [Elasticsearch Python APIs](https://github.com/elastic/elasticsearch-py).
 
 @auther Hongxin Liang
-@license TBD
+@license Apache License Version 2.0
 @see https://github.com/elastic/elasticsearch-py
 @tbd Sniffing is not supported.
 */

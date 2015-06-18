@@ -6,7 +6,7 @@
 /** <module> Transport related logic.
 
 @auther Hongxin Liang
-@license TBD
+@license Apache License Version 2.0
 */
 
 :- use_module(library(uri)).

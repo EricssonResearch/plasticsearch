@@ -5,5 +5,5 @@ keywords([elasticsearch, client, 'API']).
 author('Hongxin Liang', 'hongxin.liang@ericsson.com').
 packager('Hongxin Liang', 'hongxin.liang@ericsson.com').
 maintainer('Hongxin Liang', 'hongxin.liang@ericsson.com').
-home('http://git.cf.ericsson.net/ehonlia/plasticsearch').
-download('http://git.cf.ericsson.net/ehonlia/plasticsearch/repository/archive.tar.gz').
+home('https://github.com/EricssonResearch/plasticsearch').
+download('https://github.com/EricssonResearch/plasticsearch/archive/v0.1.zip').

@@ -2,6 +2,13 @@
     '.'/3       % +Ps, +Term, -Result
 ]).
 
+/** <module> syntactic sugar
+It's all about "." ;)
+
+@auther Hongxin Liang
+@license Apache License Version 2.0
+*/
+
 %% '.'(+Ps, +Term, -Result) is semidet.
 %
 % Syntactic sugar for invoking APIs.

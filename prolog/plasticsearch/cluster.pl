@@ -19,7 +19,7 @@
 Manage cluster.
 
 @auther Hongxin Liang
-@license TBD
+@license Apache License Version 2.0
 @see http://www.elastic.co/guide/en/elasticsearch/reference/current/cluster.html
 */
 

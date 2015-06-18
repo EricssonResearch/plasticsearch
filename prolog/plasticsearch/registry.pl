@@ -8,7 +8,7 @@
 /** <module> Registry of Plasticsearch instances
 
 @auther Hongxin Liang
-@license TBD
+@license Apache License Version 2.0
 */
 
 %% new(+Key, +Dict) is det.
