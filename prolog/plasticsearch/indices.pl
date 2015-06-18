@@ -81,7 +81,7 @@
 The indices APIs are used to manage individual indices,
 index settings, aliases, mappings, index templates and warmers.
 
-@auther Hongxin Liang
+@author Hongxin Liang
 @license Apache License Version 2.0
 @see http://www.elastic.co/guide/en/elasticsearch/reference/current/indices.html
 */

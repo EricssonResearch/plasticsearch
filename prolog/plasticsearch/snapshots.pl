@@ -22,7 +22,7 @@
 /** <module> Snapshots APIs
 The snapshot and restore module allows to create snapshots of individual indices or an entire cluster into a remote repository.
 
-@auther Hongxin Liang
+@author Hongxin Liang
 @license Apache License Version 2.0
 @see http://www.elastic.co/guide/en/elasticsearch/reference/master/modules-snapshots.html
 */

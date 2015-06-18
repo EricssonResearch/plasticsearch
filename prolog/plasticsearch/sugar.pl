@@ -5,7 +5,7 @@
 /** <module> syntactic sugar
 It's all about "." ;)
 
-@auther Hongxin Liang
+@author Hongxin Liang
 @license Apache License Version 2.0
 */
 

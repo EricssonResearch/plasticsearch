@@ -12,7 +12,7 @@
 /** <module> Nodes APIs
 Manage nodes.
 
-@auther Hongxin Liang
+@author Hongxin Liang
 @license Apache License Version 2.0
 @see http://www.elastic.co/guide/en/elasticsearch/reference/current/cluster.html
 */

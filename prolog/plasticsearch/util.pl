@@ -7,7 +7,7 @@
 
 /** <module> Utilities
 
-@auther Hongxin Liang
+@author Hongxin Liang
 @license Apache License Version 2.0
 */
 

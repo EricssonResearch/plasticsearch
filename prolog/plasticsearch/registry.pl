@@ -7,7 +7,7 @@
 
 /** <module> Registry of Plasticsearch instances
 
-@auther Hongxin Liang
+@author Hongxin Liang
 @license Apache License Version 2.0
 */
 
