@@ -14,7 +14,7 @@ Using SWI-Prolog 7 or later.
     ?- pack_install('https://github.com/EricssonResearch/plasticsearch.git').
 
 Source code available and pull requests accepted
-[here](http://git.cf.ericsson.net/ehonlia/plasticsearch).
+[here](https://github.com/EricssonResearch/plasticsearch).
 
 @author Hongxin Liang <hongxin.liang@ericsson.com>
 
