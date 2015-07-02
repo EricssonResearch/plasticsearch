@@ -11,7 +11,7 @@ for developers who are familiar with Python Elasticsearch Client.
 
 Using SWI-Prolog 7 or later.
 
-    ?- pack_install('http://git.cf.ericsson.net/ehonlia/plasticsearch.git').
+    ?- pack_install('https://github.com/EricssonResearch/plasticsearch.git').
 
 Source code available and pull requests accepted
 [here](http://git.cf.ericsson.net/ehonlia/plasticsearch).
