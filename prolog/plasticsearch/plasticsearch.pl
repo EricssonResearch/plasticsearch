@@ -17,8 +17,8 @@
     get/6,              % +Ps, +Index, +DocType, +ID, +Params, -Reply
     get_source/5,       % +Ps, +Index, +DocType, +ID, -Reply
     get_source/6,       % +Ps, +Index, +DocType, +ID, +Params, -Reply
-    mget/5,             % +Ps, +Index, +DocType, -Reply
-    mget/6,             % +Ps, +Index, +DocType, +Params, -Reply
+    mget/5,             % +Ps, +Index, +DocType, +Body, -Reply
+    mget/6,             % +Ps, +Index, +DocType, +Params, +Body, -Reply
     update/6,           % +Ps, +Index, +DocType, +ID, +Body, -Reply
     update/7,           % +Ps, +Index, +DocType, +ID, +Params, +Body, -Reply
     search/5,           % +Ps, +Index, +DocType, +Body, -Reply
@@ -296,8 +296,8 @@ get_source(Ps, Index, DocType, ID, Params, Reply) :-
     make_context([Index, DocType, ID, '_source'], Context),
     perform_request(Ps, get, Context, Params, _, Reply).
 
-%% mget(+Ps, +Index, +DocType, -Reply) is semidet.
-%% mget(+Ps, +Index, +DocType, +Params, -Reply) is semidet.
+%% mget(+Ps, +Index, +DocType, +Body, -Reply) is semidet.
+%% mget(+Ps, +Index, +DocType, +Params, +Body, -Reply) is semidet.
 %
 % Get multiple documents based on an index, type (optional) and ids.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html).
@@ -398,8 +398,8 @@ scroll(Ps, ID, Reply) :-
 scroll(Ps, ID, Params, Reply) :-
     perform_request(Ps, get, '/_search/scroll', Params, ID, _, Reply).
 
-%% clear_scroll(+Ps, +ID, -Reply) is semidet.
-%% clear_scroll(+Ps, +ID, +Params, -Reply) is semidet.
+%% clear_scroll(+Ps, +ID, +Body, -Reply) is semidet.
+%% clear_scroll(+Ps, +ID, +Params, +Body, -Reply) is semidet.
 %
 % Clear the scroll request created by specifying the scroll parameter to
 % search.

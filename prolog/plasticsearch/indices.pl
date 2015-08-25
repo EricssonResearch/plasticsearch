@@ -247,7 +247,7 @@ get_mapping(Ps, Index, DocType, Params, Reply) :-
     perform_request(Ps, get, Context, Params,  _, Reply).
 
 %% get_field_mapping(+Ps, +Index, +DocType, +Field, -Reply) is semidet.
-%% get_mapping(+Ps, +Index, +DocType, +Field, +Params, -Reply) is semidet.
+%% get_field_mapping(+Ps, +Index, +DocType, +Field, +Params, -Reply) is semidet.
 %
 % Retrieve mapping definition of a specific field.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-get-field-mapping.html).
@@ -275,7 +275,7 @@ delete_mapping(Ps, Index, DocType, Params, Reply) :-
     perform_request(Ps, delete, Context, Params,  _, Reply).
 
 %% put_alias(+Ps, +Index, +Alias, +Body, -Reply) is semidet.
-%% get_mapping(+Ps, +Index, +Alias, +Params, +Body, -Reply) is semidet.
+%% put_alias(+Ps, +Index, +Alias, +Params, +Body, -Reply) is semidet.
 %
 % Create an alias for a specific index/indices.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html).

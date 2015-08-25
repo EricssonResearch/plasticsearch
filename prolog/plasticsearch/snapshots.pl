@@ -27,8 +27,8 @@ The snapshot and restore module allows to create snapshots of individual indices
 @see http://www.elastic.co/guide/en/elasticsearch/reference/master/modules-snapshots.html
 */
 
-%% create(+Repository, +Snapshot, +Body, -Reply) is semidet.
-%% create(+Repository, +Snapshot, +Params, +Body, -Reply) is semidet.
+%% create(+Ps, +Repository, +Snapshot, +Body, -Reply) is semidet.
+%% create(+Ps, +Repository, +Snapshot, +Params, +Body, -Reply) is semidet.
 %
 % Create a snapshot in repository.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/modules-snapshots.html).
@@ -41,8 +41,8 @@ create(Ps, Repository, Snapshot, Params, Body, Reply) :-
     make_context(['_snapshot', Repository, Snapshot], Context),
     perform_request(Ps, put, Context, Params, Body, _, Reply).
 
-%% delete(+Repository, +Snapshot, -Reply) is semidet.
-%% delete(+Repository, +Snapshot, +Params, -Reply) is semidet.
+%% delete(+Ps, +Repository, +Snapshot, -Reply) is semidet.
+%% delete(+Ps, +Repository, +Snapshot, +Params, -Reply) is semidet.
 %
 % Delete a snapshot from repository.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/modules-snapshots.html).
@@ -55,8 +55,8 @@ delete(Ps, Repository, Snapshot, Params, Reply) :-
     make_context(['_snapshot', Repository, Snapshot], Context),
     perform_request(Ps, delete, Context, Params, _, Reply).
 
-%% get(+Repository, +Snapshot, -Reply) is semidet.
-%% get(+Repository, +Snapshot, +Params, -Reply) is semidet.
+%% get(+Ps, +Repository, +Snapshot, -Reply) is semidet.
+%% get(+Ps, +Repository, +Snapshot, +Params, -Reply) is semidet.
 %
 % Retrieve information about a snapshot.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/modules-snapshots.html).
@@ -69,8 +69,8 @@ get(Ps, Repository, Snapshot, Params, Reply) :-
     make_context(['_snapshot', Repository, Snapshot], Context),
     perform_request(Ps, get, Context, Params, _, Reply).
 
-%% delete_repository(+Repository, -Reply) is semidet.
-%% delete_repository(+Repository, +Params, -Reply) is semidet.
+%% delete_repository(+Ps, +Repository, -Reply) is semidet.
+%% delete_repository(+Ps, +Repository, +Params, -Reply) is semidet.
 %
 % Removes a shared file system repository.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/modules-snapshots.html).
@@ -83,8 +83,8 @@ delete_repository(Ps, Repository, Params, Reply) :-
     make_context(['_snapshot', Repository], Context),
     perform_request(Ps, delete, Context, Params, _, Reply).
 
-%% get_repository(+Repository, -Reply) is semidet.
-%% get_repository(+Repository, +Params, -Reply) is semidet.
+%% get_repository(+Ps, +Repository, -Reply) is semidet.
+%% get_repository(+Ps, +Repository, +Params, -Reply) is semidet.
 %
 % Return information about registered repositories.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/modules-snapshots.html).
@@ -96,8 +96,8 @@ get_repository(Ps, Repository, Params, Reply) :-
     make_context(['_snapshot', Repository], Context),
     perform_request(Ps, get, Context, Params, _, Reply).
 
-%% create_repository(+Repository, +Body, -Reply) is semidet.
-%% create_repository(+Repository, +Params, +Body, -Reply) is semidet.
+%% create_repository(+Ps, +Repository, +Body, -Reply) is semidet.
+%% create_repository(+Ps, +Repository, +Params, +Body, -Reply) is semidet.
 %
 % Registers a shared file system repository.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/modules-snapshots.html).
@@ -110,8 +110,8 @@ create_repository(Ps, Repository, Params, Body, Reply) :-
     make_context(['_snapshot', Repository], Context),
     perform_request(Ps, put, Context, Params, Body, _, Reply).
 
-%% restore(+Repository, +Snapshot, +Body, -Reply) is semidet.
-%% restore(+Repository, +Snapshot, +Params, +Body, -Reply) is semidet.
+%% restore(+Ps, +Repository, +Snapshot, +Body, -Reply) is semidet.
+%% restore(+Ps, +Repository, +Snapshot, +Params, +Body, -Reply) is semidet.
 %
 % Restore a snapshot in repository.
 % See [here](http://www.elastic.co/guide/en/elasticsearch/reference/master/modules-snapshots.html).
@@ -124,8 +124,8 @@ restore(Ps, Repository, Snapshot, Params, Body, Reply) :-
     make_context(['_snapshot', Repository, Snapshot, '_restore'], Context),
     perform_request(Ps, post, Context, Params, Body, _, Reply).
 
-%% status(+Repository, +Snapshot, -Reply) is semidet.
-%% status(+Repository, +Snapshot, +Params, -Reply) is semidet.
+%% status(+Ps, +Repository, +Snapshot, -Reply) is semidet.
+%% status(+Ps, +Repository, +Snapshot, +Params, -Reply) is semidet.
 %
 % Return information about all currently running snapshots. By specifying
 % a repository name, it's possible to limit the results to a particular
@@ -139,8 +139,8 @@ status(Ps, Repository, Snapshot, Params, Reply) :-
     make_context(['_snapshot', Repository, Snapshot, '_status'], Context),
     perform_request(Ps, get, Context, Params, _, Reply).
 
-%% verify_repository(+Repository, -Reply) is semidet.
-%% verify_repository(+Repository, +Params, -Reply) is semidet.
+%% verify_repository(+Ps, +Repository, -Reply) is semidet.
+%% verify_repository(+Ps, +Repository, +Params, -Reply) is semidet.
 %
 % Returns a list of nodes where repository was successfully verified or
 % an error message if verification process failed.
