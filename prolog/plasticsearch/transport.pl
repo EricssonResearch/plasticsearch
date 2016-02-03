@@ -67,10 +67,10 @@ perform_request(Ps, put, Context, Params, Body, Status, Reply) :- !,
     http_operation_with_retry(Ps, Context, Params, http_put(WrappedBody), Status, Reply).
 
 http_head(URL, Reply, Options) :-
-    http_get(URL, Reply, [method('HEAD')|Options]).
+    http_get(URL, Reply, [method(head)|Options]).
 
 http_delete_ex(URL, Data, Reply, Options) :-
-    http_post(URL, Data, Reply, [method('DELETE')|Options]).
+    http_post(URL, Data, Reply, [method(delete)|Options]).
     
 wrap_body(Body, WrappedBody) :-
     is_dict(Body), !,
